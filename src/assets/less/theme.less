@@ -1,0 +1,115 @@
+/* 示例：全局变量 */
+@t-color-red: red;
+/* 主题的主色 */
+@t-color-m1: rgb(0, 147, 221);
+//@t-color-m2: rgb(234, 85, 4);
+@t-color-m2: rgb(247, 207, 10);
+@t-color-m3: rgb(246, 173, 60);
+@t-color-t1: rgb(55, 164, 155);
+
+@t-color-click: #177dce;
+@t-color-option: #e7f2fa;
+@t-color-oddrow: #fafafa;
+
+.el-pagination.is-background .el-pager li:not(.disabled):hover {
+  color: @t-color-m1 !important;
+}
+
+.el-pagination.is-background .el-pager li:not(.disabled).active {
+  background-color: @t-color-m1 !important;
+  color: #fff !important;
+}
+
+.el-select .el-input.is-focus .el-input__inner {
+  border-color: @t-color-m1 !important;
+}
+
+.el-select .el-input__inner:focus {
+  border-color: @t-color-m1 !important;
+}
+
+.el-select-dropdown__item.selected {
+  color: @t-color-m1 !important;
+}
+
+.el-input.is-active .el-input__inner, .el-input__inner:focus {
+  border-color: @t-color-m1 !important;
+}
+
+.el-button:focus, .el-button:hover {
+  color: fade(@t-color-m1, 70%) !important;
+  border-color: fade(@t-color-m1, 40%) !important;
+  background-color: #ecf5ff;
+}
+
+.el-breadcrumb__inner a:hover, .el-breadcrumb__inner.is-link:hover {
+  color: @t-color-m1 !important;
+}
+
+.el-table th.el-table__cell {
+  background-color: @t-color-m1 !important;
+  color: #fff;
+}
+
+.el-button--primary {
+  color: #fff;
+  background-color: @t-color-m1 !important;
+  border-color: @t-color-m1 !important;
+}
+
+.el-button--success {
+  color: #fff;
+  background-color: @t-color-m1 !important;
+  border-color: @t-color-m1 !important;
+}
+
+.el-button--success:focus, .el-button--success:hover {
+  background: fade(@t-color-m1, 40%) !important;
+  border-color: fade(@t-color-m1, 40%) !important;
+  color: #fff;
+}
+
+.el-radio__input.is-checked .el-radio__inner {
+  border-color: @t-color-m1 !important;
+  background: @t-color-m1 !important;
+}
+
+.el-radio__input.is-checked+.el-radio__label {
+  color: @t-color-m1 !important;
+}
+
+.el-radio-button__orig-radio:checked+.el-radio-button__inner {
+  color: #fff;
+  background-color: @t-color-m1 !important;
+  border-color: @t-color-m1 !important;
+  box-shadow: -1px 0 0 0 @t-color-m1 !important;
+}
+
+.el-radio-button__inner:hover {
+  color: @t-color-m1 !important;
+}
+
+.el-loading-spinner .el-loading-text {
+  color: @t-color-m1 !important;
+}
+
+.el-loading-spinner i {
+  color: @t-color-m1 !important;
+}
+
+.el-checkbox__input.is-checked+.el-checkbox__label {
+  color: @t-color-m1 !important;
+}
+
+.el-checkbox__input.is-checked .el-checkbox__inner, .el-checkbox__input.is-indeterminate .el-checkbox__inner {
+  background-color: @t-color-m1 !important;
+  border-color: @t-color-m1 !important;
+}
+
+.el-checkbox__inner:hover {
+  border-color: @t-color-m1 !important;
+}
+
+.el-checkbox__input.is-focus .el-checkbox__inner {
+  border-color: @t-color-m1 !important;
+}

@@ -1,0 +1,106 @@
+<template>
+  <div class="item-medal">
+    <div class="medal">
+      <el-table v-loading="loading" :data="dataList">
+        <el-table-column type="index" align="center" width="80" fixed/>
+        <el-table-column label="竞赛项目" align="center" width="300" show-overflow-tooltip>
+          <template scope="scope">
+            <span class="race" @click="toItemSchedule(scope.row)">{{scope.row.raceName}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="运动员" align="center">
+          <template scope="scope">
+            <span class="sporter" v-for="sp in scope.row.sporterList" @click="toSporterInfo(sp)">{{sp.name}}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="成绩" align="center" prop="result" width="140" />
+        <el-table-column label="名次" align="center" prop="orderIndex" width="80" />
+        <el-table-column label="计牌" align="center" prop="medal" sortable width="80" />
+        <el-table-column label="计分" align="center" prop="score" sortable width="80" />
+        <el-table-column label="超破计分" align="center" prop="extra.extraScore" sortable width="100" fixed="right" />
+      </el-table>
+    </div>
+  </div>
+</template>
+
+<script>
+  import { listResult } from "network/game/result";
+
+  export default {
+    name: "RaceMedal",
+    components: {
+    },
+    data() {
+      return {
+        loading: false,
+        itemId: null,
+        slaveItemId: null,
+        unitTypeId: null,
+        orderIndex: null,
+        dataList: []
+      }
+    },
+    created() {
+      this.itemId = this.$route.query.itemId ? parseInt(this.$route.query.itemId) : null;
+      this.slaveItemId = this.$route.query.slaveItemId ? this.$route.query.slaveItemId : null;
+      this.unitTypeId = this.$route.query.unitTypeId ? parseInt(this.$route.query.unitTypeId) : null;
+      this.orderIndex = this.$route.query.orderIndex ? parseInt(this.$route.query.orderIndex) : null;
+      this.getDataList();
+      const activeTab = this.$route.query.activeTab || 'game';
+      this.$emit('loadActiveTab', activeTab);
+    },
+    methods: {
+      getDataList() {
+        if (this.unitTypeId && (this.itemId || this.slaveItemId)) {
+          this.loading = true;
+          let params = {
+            gameId: this.$store.getters.game.id,
+            categoryId: this.$store.getters.categoryId,
+            itemId: this.itemId,
+            slaveItemId: this.slaveItemId,
+            unitTypeId: this.unitTypeId,
+            orderIndex: this.orderIndex == 0 ? 0 : null,
+            orderIndexStart: this.orderIndex,
+            orderIndexEnd: this.orderIndex,
+            orderIndexScopedType: 'medal'
+          };
+
+          listResult(params).then(res => {
+            this.dataList = res.rows;
+            this.loading = false;
+          });
+        }
+      },
+      toItemSchedule(row) {
+        this.$router.push(`/schedule/item/${row.itemId}/${row.raceId}`);
+      },
+      toSporterInfo(sp) {
+        this.$router.push(`/game/sporter/${sp.categoryId}/${sp.sporterId}`);
+      }
+    }
+  }
+</script>
+
+<style lang="less" scoped>
+  .item-medal {
+    display: flex;
+    justify-content: space-between;
+    .medal {
+      width: 100%;
+      .race {
+        padding-right: 10px;
+        cursor: pointer;
+        &:hover {
+          color: @t-color-m1;
+        }
+      }
+      .sporter {
+        padding-right: 10px;
+        cursor: pointer;
+        &:hover {
+          color: @t-color-m1;
+        }
+      }
+    }
+  }
+</style>

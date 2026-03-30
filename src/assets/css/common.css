@@ -1,0 +1,45 @@
+/* 左浮动 */
+.fl {
+  float: left;
+}
+
+/* 右浮动 */
+.fr {
+  float: right;
+}
+
+/* 清除浮动 */
+.clear-fix::after {
+  clear: both;
+  content: "";
+  display: block;
+  width: 0;
+  height: 0;
+  visibility: hidden;
+}
+
+.clear-fix {
+  *zoom: 1;
+}
+
+/* 光标手 */
+.clickable {
+  cursor: pointer;
+}
+
+.ml5 {
+  margin-left: 5px;
+}
+
+.ml10 {
+  margin-left: 10px;
+}
+
+.ml15 {
+  margin-left: 15px;
+}
+
+.sub-text-sm {
+  font-size: 12px;
+  color: #646464;
+}

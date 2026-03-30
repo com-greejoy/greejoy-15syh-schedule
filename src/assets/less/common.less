@@ -1,0 +1,18 @@
+/* 单行文本截断并补充省略号 */
+.single-line-break() {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* 多行文本截断并补充省略号，默认文本为2行 */
+/* 需把高度设置成行高的n倍，来控制最多显示n行文本 */
+.multi-line-break(@line-limit: 2, @line-height: 16px) {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: @line-limit;
+  -webkit-box-orient: vertical;
+  height: @line-height*@line-limit;
+  line-height: @line-height;
+  white-space: normal;
+}
