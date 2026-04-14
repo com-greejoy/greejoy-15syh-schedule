@@ -49,10 +49,10 @@
       },
       activeTitle() {
         if (this.activeTab === 'game') {
-          return '成都市第十五届运动会青少年组金牌榜';
+          return '四川省第十五届运动会青少年组金牌榜';
         }
         if (this.activeTab === 'score') {
-          return '成都市第十五届运动会青少年组总分榜';
+          return '四川省第十五届运动会青少年组总分榜';
         }
       }
     },

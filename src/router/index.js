@@ -29,8 +29,6 @@ const ItemView = () => import('views/game/ItemView');
 const ItemInfo = () => import('views/game/ItemInfo');
 const GameRule = () => import('views/game/GameRule');
 const SheetView = () => import('views/game/SheetView');
-const PrintView = () => import('views/game/PrintView');
-
 
 Vue.use(VueRouter)
 
@@ -187,11 +185,6 @@ const routes = [
     path: '/game/sheet',
     name: 'SheetView',
     component: SheetView
-  },
-  {
-    path: '/game/print',
-    name: 'PrintView',
-    component: PrintView
   }
 ];
 

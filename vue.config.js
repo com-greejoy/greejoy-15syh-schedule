@@ -3,7 +3,7 @@ const path = require("path");
 module.exports = {
   //输出目录，默认dist
   outputDir: 'dist',
-  publicPath: process.env.NODE_ENV === "production" ? "/15cdsport/match/" : "/",
+  publicPath: process.env.NODE_ENV === "production" ? "/match/" : "/",
   devServer: {
     port: 8848,
     proxy: {
@@ -39,7 +39,7 @@ module.exports = {
   chainWebpack: config =>{
     config.plugin('html')
       .tap(args => {
-        args[0].title = "成都市第十五届运动会 - 竞赛信息发布系统";
+        args[0].title = "四川省第十五届运动会 - 竞赛信息发布系统";
         return args;
       })
   },

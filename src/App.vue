@@ -40,9 +40,6 @@
           to="/game/unitType"
           >代表团</router-link
         >
-        <!--
-        <router-link class="link" to="/game/print">打印</router-link>
-        -->
       </div>
     </div>
     <div id="main">
@@ -51,15 +48,9 @@
       </div>
     </div>
     <div id="beian">
-      <span>
-        <a target="_blank" href="https://beian.miit.gov.cn">
-          <span class="num">蜀ICP备2023022713号</span>
-        </a>
-      </span>
-      <span class="tools">
-        实用工具：
-        <span class="item" @click="toPrint">获奖证书打印</span>
-      </span>
+      <img class="beian-icon" src="~assets/img/beian-icon.png" />
+      <a style="margin-right: 20px;" href=" " rel="noreferrer" target="_blank">川公网安备51160202511962号</a>
+      <a target="_blank" href="https://beian.miit.gov.cn/#/Integrated/index">备案号：蜀ICP备2025145529号-3</a>
     </div>
   </div>
 </template>
@@ -96,9 +87,6 @@ export default {
   methods: {
     toHome() {
       window.location.href = process.env.VUE_APP_HOST_URL;
-    },
-    toPrint() {
-      this.$router.push("/game/print");
     }
   }
 };
@@ -180,11 +168,19 @@ export default {
   height: 40px;
   line-height: 40px;
 
-  .num {
+  a {
     color: #939393;
+    text-decoration: none;
     &:hover {
       color: black;
     }
+  }
+
+  .beian-icon {
+    width: 18px;
+    height: 18px;
+    vertical-align: middle;
+    margin-right: 6px;
   }
 
   .tools {
