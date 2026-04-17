@@ -1,3 +1,15 @@
+function getAllowedCategories() {
+  const raw = process.env.VUE_APP_ALLOWED_CATEGORIES;
+  if (!raw) return [];
+  return raw.split(',').map(s => s.trim()).filter(Boolean);
+}
+
+function filterCategoryList(list) {
+  const allowed = getAllowedCategories();
+  if (!allowed.length) return list;
+  return list.filter(c => allowed.includes(c.code));
+}
+
 const game = {
   state: {
     game: {},
@@ -7,12 +19,12 @@ const game = {
   mutations: {
     SET_GAME: (state, game) => {
       state.game = game;
-      //如果已有的categoryId不属于该game，则重置为null
-      if (!game.categoryList.length || !game.categoryList.find(i => i.id === state.categoryId)) {
+      const visibleList = filterCategoryList(game.categoryList || []);
+      if (!visibleList.length || !visibleList.find(i => i.id === state.categoryId)) {
         state.categoryId = null;
       }
-      if (!state.categoryId && game.categoryList.length > 0) {
-        state.categoryId = game.categoryList[0].id;
+      if (!state.categoryId && visibleList.length > 0) {
+        state.categoryId = visibleList[0].id;
       }
     },
     SET_CATEGORY_ID: (state, categoryId) => {
