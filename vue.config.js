@@ -3,7 +3,7 @@ const path = require("path");
 module.exports = {
   //输出目录，默认dist
   outputDir: 'dist',
-  publicPath: process.env.NODE_ENV === "production" ? "/match/" : "/",
+  publicPath: process.env.NODE_ENV === "production" ? "/schedule/" : "/",
   devServer: {
     port: 8848,
     proxy: {
