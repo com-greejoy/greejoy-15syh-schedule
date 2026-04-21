@@ -6,12 +6,12 @@
           <li
             v-for="i in matchDateList"
             :class="{
-              'has-final':i.finalCount > 0,
-              'day-select':matchDateSelect && i.matchDate==matchDateSelect
+              'has-final': i.finalCount > 0,
+              'day-select': matchDateSelect && i.matchDate == matchDateSelect,
             }"
             @click="handleDateClick(i)"
           >
-            {{ i.matchDate | dateFmt('MM-DD') }}
+            {{ i.matchDate | dateFmt("MM-DD") }}
           </li>
         </ul>
       </div>
@@ -19,31 +19,39 @@
 
     <div class="panel">
       <ul class="info">
-        <li class="item" v-if="itemId > 0">{{curItem ? curItem.name : ''}}</li>
+        <li class="item" v-if="itemId > 0">
+          {{ curItem ? curItem.name : "" }}
+        </li>
         <li class="title">比赛日程</li>
-        <li class="race" v-if="raceId > 0" @click="handleCurRaceClick">{{curRace ? curRace.name : ''}}</li>
+        <li class="race" v-if="raceId > 0" @click="handleCurRaceClick">
+          {{ curRace ? curRace.name : "" }}
+        </li>
       </ul>
       <div class="search">
         <div class="option sex" v-for="sexRaces in sexInitRaceList">
-          <span class="text">{{raceSexFormat(sexRaces.sex)}}项目&nbsp;▽</span>
+          <span class="text">{{ raceSexFormat(sexRaces.sex) }}项目&nbsp;▽</span>
           <ul class="races-info">
             <li
               v-for="race in sexRaces.raceList"
               :class="race.id == raceId ? 'race-select' : ''"
               @click="handleRaceClick(race)"
-            >{{race.name}}</li>
+            >
+              {{ race.name }}
+            </li>
           </ul>
         </div>
         <div class="option items">
           <span class="text">更多项目&nbsp;▽</span>
           <ul class="items-info">
             <li v-for="i in letterItemList">
-              <a class="letter">{{i.letter}}</a>
-              <a class="item"
-                 v-for="item in i.itemList"
-                 :class="item.id == itemId ? 'item-select' : ''"
-                 @click="handleItemClick(item)"
-              >{{item.name}}</a>
+              <a class="letter">{{ i.letter }}</a>
+              <a
+                class="item"
+                v-for="item in i.itemList"
+                :class="item.id == itemId ? 'item-select' : ''"
+                @click="handleItemClick(item)"
+                >{{ item.name }}</a
+              >
             </li>
           </ul>
         </div>
@@ -53,43 +61,103 @@
     <div class="order-display" v-if="resultList.length > 0">
       <div class="title">
         <span class="head">名次公告</span>
-        <span class="info">{{resultList[0].matchDate | dateFmt('MM-DD HH:mm')}} {{resultList[0].matchAddress}}</span>
+        <span class="info"
+          >{{ resultList[0].matchDate | dateFmt("MM-DD HH:mm") }}
+          {{ resultList[0].matchAddress }}</span
+        >
       </div>
       <div class="data">
-        <el-table :data="resultList" row-key="idx" :expand-row-keys="expandIdxs">
-          <el-table-column label="名次" align="center" prop="orderIndex" width="200">
+        <el-table
+          :data="resultList"
+          row-key="idx"
+          :expand-row-keys="expandIdxs"
+        >
+          <el-table-column
+            label="名次"
+            align="center"
+            prop="orderIndex"
+            width="200"
+          >
             <template slot-scope="scope">
-              <medal-img class="medal"
-                         v-if="scope.row.medalType"
-                         :order-index="scope.row.orderIndex"
-                         :medal-type="scope.row.medalType"
-                         :show-order-index="true"
+              <medal-img
+                class="medal"
+                v-if="scope.row.medalType"
+                :order-index="scope.row.orderIndex"
+                :medal-type="scope.row.medalType"
+                :show-order-index="true"
               />
-              <span v-else>{{scope.row.orderIndex}}</span>
+              <span v-else>{{ scope.row.orderIndex }}</span>
             </template>
           </el-table-column>
           <el-table-column label="单位" align="left" prop="unitName" />
-          <el-table-column label="成绩" align="center" prop="result" width="200" />
-          <el-table-column label="计牌" align="center" prop="medal" width="100" />
-          <el-table-column label="计分" align="center" prop="score" width="100" />
-          <el-table-column label="超破计分" align="center" prop="extra.extraScore" width="100" />
-          <el-table-column label="备注" align="center" prop="remark" width="150" show-overflow-tooltip />
+          <el-table-column
+            label="成绩"
+            align="center"
+            prop="result"
+            width="200"
+          />
+          <el-table-column
+            v-if="isYoung"
+            label="计牌"
+            align="center"
+            prop="medal"
+            width="100"
+          />
+          <el-table-column
+            v-if="isYoung"
+            label="计分"
+            align="center"
+            prop="score"
+            width="100"
+          />
+          <el-table-column
+            v-if="isYoung"
+            label="超破计分"
+            align="center"
+            prop="extra.extraScore"
+            width="100"
+          />
+          <el-table-column
+            label="备注"
+            align="center"
+            prop="remark"
+            width="150"
+            show-overflow-tooltip
+          />
           <el-table-column type="expand" align="center" width="60">
             <template slot="header" slot-scope="scope">
-              <div class="el-table__expand-icon"
-                   :class="expandAll? 'el-table__expand-icon--expanded':''"
+              <div
+                class="el-table__expand-icon"
+                :class="expandAll ? 'el-table__expand-icon--expanded' : ''"
               >
-                <i class="expand-arrow el-icon el-icon-arrow-right" @click="handleExpand()" />
+                <i
+                  class="expand-arrow el-icon el-icon-arrow-right"
+                  @click="handleExpand()"
+                />
               </div>
             </template>
             <template slot-scope="props">
               <div class="sporter-list">
-                <div class="sporter-info" v-for="sporter in props.row.sporterList" @click="toSporterInfo(sporter)">
-                  <el-image v-if="sporter.photo" class="photo" :src="sporter.photo" fit="cover" :lazy="true" />
-                  <img v-else class="photo" src="~assets/img/game/default_profile.png">
+                <div
+                  class="sporter-info"
+                  v-for="sporter in props.row.sporterList"
+                  @click="toSporterInfo(sporter)"
+                >
+                  <el-image
+                    v-if="sporter.photo"
+                    class="photo"
+                    :src="sporter.photo"
+                    fit="cover"
+                    :lazy="true"
+                  />
+                  <img
+                    v-else
+                    class="photo"
+                    src="~assets/img/game/default_profile.png"
+                  />
                   <ul class="info">
-                    <li>{{sporter.name}}</li>
-                    <li>{{sexFormat(sporter.sex)}}</li>
+                    <li>{{ sporter.name }}</li>
+                    <li>{{ sexFormat(sporter.sex) }}</li>
                   </ul>
                 </div>
               </div>
@@ -101,313 +169,345 @@
 
     <div v-loading="loading" element-loading-spinner="el-icon-loading">
       <div class="schedule-date" v-for="dateRaces in dateRaceList">
-        <div class="title">{{dateRaces.date | dateFmt('MM-DD') }}</div>
+        <div class="title">{{ dateRaces.date | dateFmt("MM-DD") }}</div>
         <div class="schedule-data">
           <table>
             <thead>
-            <tr>
-              <th style="width:15%;">时间</th>
-              <th style="width:45%;">比赛名称</th>
-              <th style="width:10%;min-width: 180px">报表</th>
-              <th>比赛场馆</th>
-            </tr>
+              <tr>
+                <th style="width: 15%">时间</th>
+                <th style="width: 45%">比赛名称</th>
+                <th style="width: 10%; min-width: 180px">报表</th>
+                <th>比赛场馆</th>
+              </tr>
             </thead>
             <tbody>
-            <tr v-for="(race, index) in dateRaces.raceList" :class="index % 2 == 0 ? '': 'odd'">
-              <td>{{race.matchDate | dateFmt('HH:mm')}}</td>
-              <td class="left">
-                <a class="fr ml5" v-if="race.stage == '0' && race.scoreStatus == '0'">
-                  <img src="~assets/img/schedule/has_result.png">
-                  <span @click="handleRaceClick(race)">&nbsp;查看详情</span>
-                </a>
-                <span class="fr" v-if="race.parallelFlag">
-                  <img src="~assets/img/schedule/parallel.png">
-                  <span>&nbsp;含并列</span>
-                </span>
-                {{race.name}}
-                <span class="sub-text-sm">{{ race.remark }}</span>
-              </td>
-              <td>
-                <a class="lf" v-if="race.stage == '0' && race.scoreStatus == '0'">
-                  <img src="~assets/img/schedule/has_sheet.png">
-                  <span class="lf" @click="downloadResult(race)">&nbsp;名次公告</span>
-                </a>
-                <a class="lf ml10" v-if="race.stage == '0'">
-                  <template v-if="!race.remark || !race.remark.includes('取消')">
-                    <img src="~assets/img/schedule/has_sheet.png">
-                    <span class="lf" @click="downloadProgram(race)">&nbsp;参赛名单</span>
-                  </template>
-                </a>
-              </td>
-              <td>
-                <div v-if="race.activeFlag">{{race.matchAddress}}</div>
-                <div v-else style="color: red">{{race.remark}}</div>
-              </td>
-            </tr>
+              <tr
+                v-for="(race, index) in dateRaces.raceList"
+                :class="index % 2 == 0 ? '' : 'odd'"
+              >
+                <td>{{ race.matchDate | dateFmt("HH:mm") }}</td>
+                <td class="left">
+                  <a
+                    class="fr ml5"
+                    v-if="race.stage == '0' && race.scoreStatus == '0'"
+                  >
+                    <img src="~assets/img/schedule/has_result.png" />
+                    <span @click="handleRaceClick(race)">&nbsp;查看详情</span>
+                  </a>
+                  <span class="fr" v-if="race.parallelFlag">
+                    <img src="~assets/img/schedule/parallel.png" />
+                    <span>&nbsp;含并列</span>
+                  </span>
+                  {{ race.name }}
+                  <span class="sub-text-sm">{{ race.remark }}</span>
+                </td>
+                <td>
+                  <a
+                    class="lf"
+                    v-if="race.stage == '0' && race.scoreStatus == '0'"
+                  >
+                    <img src="~assets/img/schedule/has_sheet.png" />
+                    <span class="lf" @click="downloadResult(race)"
+                      >&nbsp;名次公告</span
+                    >
+                  </a>
+                  <a class="lf ml10" v-if="race.stage == '0'">
+                    <template
+                      v-if="!race.remark || !race.remark.includes('取消')"
+                    >
+                      <img src="~assets/img/schedule/has_sheet.png" />
+                      <span class="lf" @click="downloadProgram(race)"
+                        >&nbsp;参赛名单</span
+                      >
+                    </template>
+                  </a>
+                </td>
+                <td>
+                  <div v-if="race.activeFlag">{{ race.matchAddress }}</div>
+                  <div v-else style="color: red">{{ race.remark }}</div>
+                </td>
+              </tr>
             </tbody>
           </table>
         </div>
       </div>
     </div>
-
   </div>
 </template>
 
 <script>
-  import MedalImg from 'views/components/MedalImg';
-  import { listItem } from "network/game/item";
-  import { listGameRace, listInitRace } from "network/game/race";
-  import { listMatchDate } from "network/game/race";
-  import { listResult } from "network/game/result";
+import MedalImg from "views/components/MedalImg";
+import { listItem } from "network/game/item";
+import { listGameRace, listInitRace } from "network/game/race";
+import { listMatchDate } from "network/game/race";
+import { listResult } from "network/game/result";
 
-  export default {
-    name: "ItemSchedule",
-    components: {
-      MedalImg
+export default {
+  name: "ItemSchedule",
+  components: {
+    MedalImg,
+  },
+  data() {
+    return {
+      loading: false,
+      itemId: null,
+      raceId: null,
+      sexOptions: [],
+      raceSexOptions: [],
+      itemList: [],
+      initRaceList: [],
+      raceList: [],
+      matchDateList: [],
+      matchDateSelect: null,
+      resultList: [],
+      expandIdxs: [],
+      expandAll: false,
+    };
+  },
+  computed: {
+    isYoung() {
+      return this.$store.getters.categoryCode === "young";
     },
-    data() {
-      return {
-        loading: false,
-        itemId: null,
-        raceId: null,
-        sexOptions: [],
-        raceSexOptions: [],
-        itemList: [],
-        initRaceList: [],
-        raceList: [],
-        matchDateList: [],
-        matchDateSelect: null,
-        resultList: [],
-        expandIdxs: [],
-        expandAll: false
-      }
-    },
-    computed: {
-      curItem() {
-        if (this.itemId > 0) {
-          return this.itemList.find(i => {
-            return i.id === this.itemId;
-          });
-        }
-        return {};
-      },
-      curRace() {
-        if (this.raceId > 0) {
-          return this.initRaceList.find(i => {
-            return i.id === this.raceId;
-          });
-        }
-        return {};
-      },
-      sexInitRaceList() {
-        const map = new Map();
-        this.initRaceList.forEach(i => {
-          let arr = map.get(i.sex);
-          if (!arr) {
-            map.set(i.sex, []);
-          }
-          map.get(i.sex).push(i);
-        });
-        const res = [];
-        map.forEach((arr, key) => {
-          res.push({
-            sex: key,
-            raceList: arr
-          });
-        });
-        return res;
-      },
-      letterItemList() {
-        const map = new Map();
-        this.itemList.forEach(i => {
-          const letter = i.spell ? i.spell[0].toUpperCase() : null;
-          let arr = map.get(letter);
-          if (!arr) {
-            map.set(letter, []);
-          }
-          map.get(letter).push(i);
-        });
-        const res = [];
-        map.forEach((arr, key) => {
-          res.push({
-            letter: key,
-            itemList: arr
-          });
-        });
-        return res;
-      },
-      dateRaceList() {
-        const map = new Map();
-        this.raceList.forEach(i => {
-          const key = i.matchDate ? this.dayjs(i.matchDate).format('YYYY-MM-DD') : null;
-          let arr = map.get(key);
-          if (!arr) {
-            map.set(key, []);
-          }
-          map.get(key).push(i);
-        });
-        const res = [];
-        map.forEach((arr, key) => {
-          if (!this.matchDateSelect || this.matchDateSelect === key) {
-            res.push({
-              date: key,
-              raceList: arr
-            });
-          }
-        });
-        return res;
-      }
-    },
-    created() {
-      this.getDicts("gm_person_sex").then(response => {
-        this.sexOptions = response.data;
-      });
-      this.getDicts("gm_race_sex").then(response => {
-        this.raceSexOptions = response.data;
-      });
-      this.matchDateSelect = this.$route.query.matchDate;
-      this.itemId = this.$route.params.itemId ? parseInt(this.$route.params.itemId) : null;
-      this.raceId = this.$route.params.raceId ? parseInt(this.$route.params.raceId) : null;
-      this.getItemList().then(() => {
-        const find = this.itemList.find(i => {
+    curItem() {
+      if (this.itemId > 0) {
+        return this.itemList.find((i) => {
           return i.id === this.itemId;
         });
-        if (!find) {
-          //如果和当前选择组别不统一，则跳转
-          this.$router.push(`/schedule/item`);
-          return;
-        }
-        this.getMatchDateList();
-        this.getInitRaceList();
-        this.getRaceList();
-        this.getResultList();
-      });
+      }
+      return {};
     },
-    methods: {
-      sexFormat(sex) {
-        return this.selectDictLabel(this.sexOptions, sex);
-      },
-      raceSexFormat(sex) {
-        return this.selectDictLabel(this.raceSexOptions, sex);
-      },
-      handleDateClick(val) {
-        const matchDate = val.matchDate;
-        this.matchDateSelect = !this.matchDateSelect ? matchDate
-          : (this.matchDateSelect == matchDate ? null : matchDate)
-      },
-      getItemList() {
-        return new Promise((resolve, reject) => {
-          listItem({
-            gameId: this.$store.getters.game.id,
-            categoryId: this.$store.getters.categoryId,
-            orderByColumn: 'i.spell',
-            isAsc: 'asc'
-          }).then(res => {
+    curRace() {
+      if (this.raceId > 0) {
+        return this.initRaceList.find((i) => {
+          return i.id === this.raceId;
+        });
+      }
+      return {};
+    },
+    sexInitRaceList() {
+      const map = new Map();
+      this.initRaceList.forEach((i) => {
+        let arr = map.get(i.sex);
+        if (!arr) {
+          map.set(i.sex, []);
+        }
+        map.get(i.sex).push(i);
+      });
+      const res = [];
+      map.forEach((arr, key) => {
+        res.push({
+          sex: key,
+          raceList: arr,
+        });
+      });
+      return res;
+    },
+    letterItemList() {
+      const map = new Map();
+      this.itemList.forEach((i) => {
+        const letter = i.spell ? i.spell[0].toUpperCase() : null;
+        let arr = map.get(letter);
+        if (!arr) {
+          map.set(letter, []);
+        }
+        map.get(letter).push(i);
+      });
+      const res = [];
+      map.forEach((arr, key) => {
+        res.push({
+          letter: key,
+          itemList: arr,
+        });
+      });
+      return res;
+    },
+    dateRaceList() {
+      const map = new Map();
+      this.raceList.forEach((i) => {
+        const key = i.matchDate
+          ? this.dayjs(i.matchDate).format("YYYY-MM-DD")
+          : null;
+        let arr = map.get(key);
+        if (!arr) {
+          map.set(key, []);
+        }
+        map.get(key).push(i);
+      });
+      const res = [];
+      map.forEach((arr, key) => {
+        if (!this.matchDateSelect || this.matchDateSelect === key) {
+          res.push({
+            date: key,
+            raceList: arr,
+          });
+        }
+      });
+      return res;
+    },
+  },
+  created() {
+    this.getDicts("gm_person_sex").then((response) => {
+      this.sexOptions = response.data;
+    });
+    this.getDicts("gm_race_sex").then((response) => {
+      this.raceSexOptions = response.data;
+    });
+    this.matchDateSelect = this.$route.query.matchDate;
+    this.itemId = this.$route.params.itemId
+      ? parseInt(this.$route.params.itemId)
+      : null;
+    this.raceId = this.$route.params.raceId
+      ? parseInt(this.$route.params.raceId)
+      : null;
+    this.getItemList().then(() => {
+      const find = this.itemList.find((i) => {
+        return i.id === this.itemId;
+      });
+      if (!find) {
+        //如果和当前选择组别不统一，则跳转
+        this.$router.push(`/schedule/item`);
+        return;
+      }
+      this.getMatchDateList();
+      this.getInitRaceList();
+      this.getRaceList();
+      this.getResultList();
+    });
+  },
+  methods: {
+    sexFormat(sex) {
+      return this.selectDictLabel(this.sexOptions, sex);
+    },
+    raceSexFormat(sex) {
+      return this.selectDictLabel(this.raceSexOptions, sex);
+    },
+    handleDateClick(val) {
+      const matchDate = val.matchDate;
+      this.matchDateSelect = !this.matchDateSelect
+        ? matchDate
+        : this.matchDateSelect == matchDate
+        ? null
+        : matchDate;
+    },
+    getItemList() {
+      return new Promise((resolve, reject) => {
+        listItem({
+          gameId: this.$store.getters.game.id,
+          categoryId: this.$store.getters.categoryId,
+          orderByColumn: "i.spell",
+          isAsc: "asc",
+        })
+          .then((res) => {
             this.itemList = res.rows;
             //如果不是点击项目跳转而来，则自动显示首个项目
-            this.itemId = (this.itemList.length > 0 && !this.itemId) ? this.itemList[0].id : this.itemId;
+            this.itemId =
+              this.itemList.length > 0 && !this.itemId
+                ? this.itemList[0].id
+                : this.itemId;
             resolve();
-          }).catch(err => {
+          })
+          .catch((err) => {
             reject(err);
           });
-        });
-      },
-      getInitRaceList() {
-        listInitRace({
+      });
+    },
+    getInitRaceList() {
+      listInitRace({
+        gameId: this.$store.getters.game.id,
+        categoryId: this.$store.getters.categoryId,
+        itemId: this.itemId,
+        orderByColumn: "c.orderNum, i.orderNum, g.orderNum, r.orderNum",
+        isAsc: "asc, asc, asc, asc",
+      }).then((res) => {
+        this.initRaceList = res.rows;
+      });
+    },
+    getMatchDateList() {
+      listMatchDate({
+        gameId: this.$store.getters.game.id,
+        categoryId: this.$store.getters.categoryId,
+        itemId: this.itemId,
+        raceId: this.raceId,
+      }).then((res) => {
+        this.matchDateList = res.data;
+      });
+    },
+    getRaceList() {
+      this.loading = true;
+      listGameRace({
+        gameId: this.$store.getters.game.id,
+        categoryId: this.$store.getters.categoryId,
+        itemId: this.itemId,
+        id: this.raceId,
+        orderByColumn: "r.matchDate, r.orderNum",
+        isAsc: "asc, asc",
+      }).then((res) => {
+        this.raceList = res.rows;
+        this.loading = false;
+      });
+    },
+    getResultList() {
+      if (this.raceId > 0) {
+        listResult({
           gameId: this.$store.getters.game.id,
           categoryId: this.$store.getters.categoryId,
-          itemId: this.itemId,
-          orderByColumn: 'c.orderNum, i.orderNum, g.orderNum, r.orderNum',
-          isAsc: 'asc, asc, asc, asc'
-        }).then(res => {
-          this.initRaceList = res.rows;
+          raceId: this.raceId,
+          orderByColumn: "s.orderIndex",
+          isAsc: "asc",
+        }).then((res) => {
+          for (let i = 0; i < res.rows.length; i++) {
+            res.rows[i].idx = i;
+          }
+          this.resultList = res.rows;
         });
-      },
-      getMatchDateList() {
-        listMatchDate({
-          gameId: this.$store.getters.game.id,
-          categoryId: this.$store.getters.categoryId,
-          itemId: this.itemId,
-          raceId: this.raceId
-        }).then(res => {
-          this.matchDateList = res.data;
-        });
-      },
-      getRaceList() {
-        this.loading = true;
-        listGameRace({
-          gameId: this.$store.getters.game.id,
-          categoryId: this.$store.getters.categoryId,
-          itemId: this.itemId,
-          id: this.raceId,
-          orderByColumn: 'r.matchDate, r.orderNum',
-          isAsc: 'asc, asc'
-        }).then(res => {
-          this.raceList = res.rows;
-          this.loading = false;
-        });
-      },
-      getResultList() {
-        if (this.raceId > 0) {
-          listResult({
-            gameId: this.$store.getters.game.id,
-            categoryId: this.$store.getters.categoryId,
-            raceId: this.raceId,
-            orderByColumn: 's.orderIndex',
-            isAsc: 'asc'
-          }).then(res => {
-            for (let i = 0; i < res.rows.length; i++) {
-              res.rows[i].idx = i;
-            }
-            this.resultList = res.rows;
-          });
-        }
-      },
-      handleItemClick(item) {
-        this.$router.push(`/schedule/item/${item.id}`);
-      },
-      handleRaceClick(race) {
-        this.$router.push(`/schedule/item/${race.itemId}/${race.id}`)
-      },
-      handleCurRaceClick() {
-        this.$router.push(`/schedule/item/${this.curRace.itemId}`)
-      },
-      toSporterInfo(sp) {
-        this.$router.push(`/game/sporter/${sp.categoryId}/${sp.sporterId}`);
-      },
-      downloadResult(race) {
-        const url = process.env.VUE_APP_BASE_API + `/game/score/export/race/result?gameId=${this.$store.getters.game.id}&categoryId=${this.$store.getters.categoryId}&raceId=${race.id}`;
-        window.open(url, '_blank');
-      },
-      downloadProgram(race) {
-        const url = process.env.VUE_APP_BASE_API + `/game/score/export/race/program?gameId=${this.$store.getters.game.id}&categoryId=${this.$store.getters.categoryId}&raceId=${race.id}`;
-        window.open(url, '_blank');
-      },
-      handleExpand() {
-        this.expandAll = !this.expandAll;
-        if (this.expandAll) {
-          this.expandIdxs = this.resultList.map(i => {
-            return i.idx;
-          });
-        } else {
-          this.expandIdxs = [];
-        }
       }
-    }
-  }
+    },
+    handleItemClick(item) {
+      this.$router.push(`/schedule/item/${item.id}`);
+    },
+    handleRaceClick(race) {
+      this.$router.push(`/schedule/item/${race.itemId}/${race.id}`);
+    },
+    handleCurRaceClick() {
+      this.$router.push(`/schedule/item/${this.curRace.itemId}`);
+    },
+    toSporterInfo(sp) {
+      this.$router.push(`/game/sporter/${sp.categoryId}/${sp.sporterId}`);
+    },
+    downloadResult(race) {
+      const url =
+        process.env.VUE_APP_BASE_API +
+        `/game/score/export/race/result?gameId=${this.$store.getters.game.id}&categoryId=${this.$store.getters.categoryId}&raceId=${race.id}`;
+      window.open(url, "_blank");
+    },
+    downloadProgram(race) {
+      const url =
+        process.env.VUE_APP_BASE_API +
+        `/game/score/export/race/program?gameId=${this.$store.getters.game.id}&categoryId=${this.$store.getters.categoryId}&raceId=${race.id}`;
+      window.open(url, "_blank");
+    },
+    handleExpand() {
+      this.expandAll = !this.expandAll;
+      if (this.expandAll) {
+        this.expandIdxs = this.resultList.map((i) => {
+          return i.idx;
+        });
+      } else {
+        this.expandIdxs = [];
+      }
+    },
+  },
+};
 </script>
 
 <style lang="less" scoped>
-
-  /deep/ .el-table th.el-table__cell {
-    background-color: #F7F7F7 !important;
-    color: #000;
-  }
+/deep/ .el-table th.el-table__cell {
+  background-color: #f7f7f7 !important;
+  color: #000;
+}
 
 .item-schedule-view {
-
   .schedule-date {
-
     .date {
       width: 100%;
       margin-bottom: 20px;
@@ -445,7 +545,6 @@
           margin: 0px 10px 10px 0px;
           cursor: pointer;
         }
-
       }
     }
   }
@@ -543,7 +642,8 @@
               &.item {
                 cursor: pointer;
 
-                &.item-select, &:hover {
+                &.item-select,
+                &:hover {
                   background: @t-color-m1;
                   color: #fff;
                 }
@@ -556,7 +656,6 @@
             }
           }
         }
-
       }
 
       .sex {
@@ -581,7 +680,8 @@
             font-size: 14px;
             color: #000;
             cursor: pointer;
-            &.race-select, &:hover {
+            &.race-select,
+            &:hover {
               background: @t-color-m3;
               color: #fff;
             }
@@ -592,7 +692,6 @@
   }
 
   .order-display {
-
     .title {
       position: relative;
       margin-top: 20px;
@@ -656,7 +755,6 @@
         }
       }
     }
-
   }
 
   .schedule-date {
@@ -720,6 +818,5 @@
       }
     }
   }
-
 }
 </style>
