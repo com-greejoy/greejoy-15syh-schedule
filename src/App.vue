@@ -33,7 +33,7 @@
         >
         -->
         <router-link class="link" to="/game/sporter">运动员</router-link>
-        <router-link class="link" to="/game/sheet">报表</router-link>
+        <!-- <router-link class="link" to="/game/sheet">报表</router-link> -->
         <router-link
           v-if="this.$store.getters.categoryCode == 'young'"
           class="link"

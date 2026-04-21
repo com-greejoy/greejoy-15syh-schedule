@@ -28,7 +28,7 @@ const game = {
       }
     },
     SET_CATEGORY_ID: (state, categoryId) => {
-      state.categoryId = categoryId;
+      state.categoryId = categoryId != null ? Number(categoryId) : categoryId;
     }
   },
 
