@@ -58,7 +58,7 @@ description: 前端项目自动化打包部署工具。当前项目为 Vue 2 + V
 }
 ```
 
-**注意：** 密码必须在流程最开始就收集，不存储在变量中，仅传递给 Paramiko 使用。
+**注意：** 密码必须在流程最开始就收集，不存储在变量中，仅通过命令行参数传给部署脚本使用。
 
 #### 问题 3：选择打包命令
 
@@ -74,41 +74,46 @@ description: 前端项目自动化打包部署工具。当前项目为 Vue 2 + V
 }
 ```
 
-### 第二步：前置检查
+### 第二步：一键执行部署脚本
 
-- 确认当前目录包含 `package.json`
-- 确认 `vfox` 已安装
-- 列出可用的 Node.js 版本
+**收集完信息后，直接运行 skill 目录下的部署脚本，传入所有参数：**
 
-### 第三步：执行部署
+脚本位置：`.claude/skills/frontend-deploy/scripts/deploy.py`
 
-按顺序执行：
+示例命令（生产环境）：
+```bash
+python .claude/skills/frontend-deploy/scripts/deploy.py \
+  --host=1.95.115.1 \
+  --password=你的密码 \
+  --build-cmd=build
+```
 
-1. **切换 Node.js 版本**
-   ```bash
-   vfox use nodejs@20.19.5
-   ```
+自定义环境示例：
+```bash
+python .claude/skills/frontend-deploy/scripts/deploy.py \
+  --host=192.168.1.100 \
+  --port=22 \
+  --username=root \
+  --password=你的密码 \
+  --remote-path=/var/www/html/dist \
+  --build-cmd=build
+```
 
-2. **安装依赖**
-   ```bash
-   npm install
-   ```
+**脚本内部自动执行以下步骤：**
 
-3. **生产环境打包**
-   ```bash
-   npm run build
-   ```
-   打包输出目录为 `./dist`。
+1. **前置检查** - 确认 `package.json` 存在，确认 `vfox` 已安装
+2. **切换 Node.js 版本** - `vfox use nodejs@20.19.5`
+3. **安装依赖** - `npm install`
+4. **生产环境打包** - `npm run build`（输出到 `./dist`）
+5. **打包 tar.gz** - 将 `dist` 目录压缩为 `dist.tar.gz`
+6. **上传到服务器** - 通过 SSH/SFTP 上传 tar.gz 到远程 `/tmp`
+7. **远程解压** - 在服务器上解压到目标目录，自动备份旧版本
+8. **清理** - 删除本地 tar.gz
 
-4. **上传到服务器**
-   - 使用 Python + Paramiko 进行 SFTP 上传
-   - 自动备份远程旧版本（`dist.bak.时间戳`）
-   - 递归上传 `dist` 目录
-
-### 第四步：部署确认
+### 第三步：部署确认
 
 - 显示部署结果
-- 报告成功或失败的文件列表
+- 报告成功或失败
 - 提示前端访问路径为 `/schedule/`
 
 ## 服务器配置
@@ -126,7 +131,9 @@ description: 前端项目自动化打包部署工具。当前项目为 Vue 2 + V
 
 ## 脚本资源
 
-- `scripts/deploy.py` - 主要部署脚本（Python + Paramiko）
+- `.claude/skills/frontend-deploy/scripts/deploy.py` - 一键部署脚本（Python + Paramiko）
+  - 自动完成 Node 切换、依赖安装、打包、tar.gz 压缩、上传、解压全流程
+  - 支持命令行参数：--host, --port, --username, --password, --remote-path, --build-cmd, --node-version
 
 ## 错误处理
 
@@ -137,12 +144,14 @@ description: 前端项目自动化打包部署工具。当前项目为 Vue 2 + V
 | npm install 失败 | 显示错误信息并退出 |
 | 打包失败 | 显示错误信息并退出 |
 | SSH 连接失败 | 检查网络和密码，提示重试 |
-| 上传失败 | 显示失败的文件列表 |
+| 上传失败 | 显示错误信息并退出 |
+| 远程解压失败 | 显示错误信息并退出 |
 
 ## 技术栈支持
 
 - **项目类型**: Vue 2 + Vue CLI 4
 - **版本管理**: vfox（默认 Node.js 20.19.5）
 - **部署协议**: SSH/SFTP（使用 Paramiko 库）
+- **上传策略**: 本地 tar.gz 打包 → SFTP 上传 → 远程解压（避免逐文件上传的目录层级问题）
 - **前端路径前缀**: `/schedule/`
 - **操作系统**: Windows/Linux/macOS

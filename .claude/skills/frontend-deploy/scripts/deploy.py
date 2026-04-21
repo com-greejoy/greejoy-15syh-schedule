@@ -1,216 +1,188 @@
 #!/usr/bin/env python3
 """
 前端项目自动化部署脚本
-当前项目: Vue 2 + Vue CLI, 默认 Node.js 20.19.5, 打包命令 build, 输出目录 dist
+支持：Node 版本切换 → 安装依赖 → 生产打包 → tar.gz 打包 → SSH 上传 → 远程解压
+
+用法:
+    python scripts/deploy.py --host=1.95.115.1 --password=xxx [选项]
+
+选项:
+    --host          服务器地址 (必填)
+    --port          SSH 端口 (默认: 22)
+    --username      SSH 用户名 (默认: root)
+    --password      SSH 密码 (必填)
+    --remote-path   远程部署目录 (默认: /opt/1panel/www/sites/schedule/dist)
+    --build-cmd     npm 打包命令 (默认: build)
+    --node-version  Node.js 版本 (默认: 20.19.5)
 """
 
-import paramiko
+import argparse
 import os
 import sys
-import json
+import tarfile
+import time
 import subprocess
-from datetime import datetime
-from pathlib import Path
+import paramiko
 
-# 默认配置
 DEFAULT_NODE_VERSION = "20.19.5"
 DEFAULT_BUILD_COMMAND = "build"
 DEFAULT_SSH_PORT = 22
+DEFAULT_USERNAME = "root"
+DEFAULT_REMOTE_PATH = "/opt/1panel/www/sites/schedule/dist"
 LOCAL_DIST_PATH = "./dist"
 
 
-class Colors:
-    """终端颜色"""
-    RED = '\033[0;31m'
-    GREEN = '\033[0;32m'
-    YELLOW = '\033[1;33m'
-    BLUE = '\033[0;34m'
-    NC = '\033[0m'
-
-
-def print_color(message, color=Colors.NC):
-    """打印带颜色的消息"""
-    print(f"{color}{message}{Colors.NC}")
-
-
-def run_command(cmd, check=True):
-    """执行 shell 命令"""
-    print_color(f"执行: {cmd}", Colors.BLUE)
+def run_cmd(cmd, check=True):
+    """执行 shell 命令并输出。"""
+    print(f"  $ {cmd}")
     result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
+    if result.stdout:
+        print(result.stdout.strip())
     if check and result.returncode != 0:
-        print_color(f"命令失败: {result.stderr}", Colors.RED)
+        print(f"[错误] {result.stderr.strip()}", file=sys.stderr)
         sys.exit(1)
     return result
 
 
 def check_vfox():
-    """检查 vfox 是否安装"""
-    result = subprocess.run("which vfox || where vfox", shell=True, capture_output=True)
+    """检查 vfox 是否已安装。"""
+    result = subprocess.run("vfox --version", shell=True, capture_output=True)
     if result.returncode != 0:
-        print_color("错误: vfox 未安装", Colors.RED)
-        print("请先安装 vfox: https://vfox.lhan.me/")
+        print("[错误] vfox 未安装，请先安装: https://vfox.lhan.me/")
         sys.exit(1)
-    print_color("vfox 已安装", Colors.GREEN)
+    print("[OK] vfox 已安装")
 
 
-def check_package_json():
-    """检查 package.json 是否存在"""
-    if not os.path.exists("package.json"):
-        print_color("错误: 当前目录未找到 package.json", Colors.RED)
-        print("请在项目根目录运行此脚本")
+def switch_node(version):
+    """切换 Node.js 版本。"""
+    print(f"\n[1/5] 切换 Node.js 版本到 {version} ...")
+    run_cmd(f"vfox use nodejs@{version}")
+    result = run_cmd("node -v", check=False)
+    current = result.stdout.strip()
+    print(f"[OK] 当前 Node.js 版本: {current}")
+
+
+def install_deps():
+    """安装依赖。"""
+    print("\n[2/5] 安装依赖 ...")
+    run_cmd("npm install")
+    print("[OK] 依赖安装完成")
+
+
+def build_project(build_cmd):
+    """生产环境打包。"""
+    print(f"\n[3/5] 执行打包: npm run {build_cmd} ...")
+    run_cmd(f"npm run {build_cmd}")
+
+    if not os.path.isdir(LOCAL_DIST_PATH):
+        print(f"[错误] 打包后未找到 {LOCAL_DIST_PATH} 目录", file=sys.stderr)
         sys.exit(1)
-    print_color("package.json 存在", Colors.GREEN)
+    print("[OK] 打包成功")
 
 
-def get_available_scripts():
-    """从 package.json 获取可用的 build 脚本"""
-    with open("package.json", "r", encoding="utf-8") as f:
-        data = json.load(f)
-    scripts = data.get("scripts", {})
-    build_scripts = {k: v for k, v in scripts.items() if "build" in k.lower() or "report" in k.lower()}
-    return build_scripts
+def make_tar():
+    """将 dist 目录打包为 tar.gz，返回文件路径。"""
+    tar_path = os.path.abspath(LOCAL_DIST_PATH + ".tar.gz")
+    print(f"\n[4/5] 打包 dist 为 tar.gz: {tar_path} ...")
+    with tarfile.open(tar_path, "w:gz") as tar:
+        for root, dirs, files in os.walk(LOCAL_DIST_PATH):
+            for f in files:
+                full = os.path.join(root, f)
+                arcname = os.path.relpath(full, LOCAL_DIST_PATH)
+                tar.add(full, arcname=arcname)
+    print("[OK] 打包完成")
+    return tar_path
 
 
-def switch_node_version(version):
-    """切换 Node.js 版本"""
-    print_color(f"\n[1/4] 检查 Node.js 版本...", Colors.YELLOW)
+def deploy(tar_path, host, port, username, password, remote_path):
+    """SSH 连接、备份、上传、解压。"""
+    print(f"\n[5/5] 部署到服务器 {host}:{port} ...")
+    print(f"  远程路径: {remote_path}")
 
-    # 检查指定版本是否已安装
-    result = subprocess.run(f"vfox list nodejs", shell=True, capture_output=True, text=True)
-
-    if version not in result.stdout:
-        print_color(f"Node.js {version} 未安装，正在安装...", Colors.YELLOW)
-        run_command(f"vfox install nodejs@{version}")
-
-    # 切换版本
-    print_color(f"切换到 Node.js {version}...", Colors.YELLOW)
-    run_command(f"vfox use nodejs@{version}")
-
-    # 验证版本
-    result = run_command("node -v", check=False)
-    current_version = result.stdout.strip()
-    print_color(f"当前 Node.js 版本: {current_version}", Colors.GREEN)
-
-    if version not in current_version:
-        print_color(f"警告: 版本切换可能未生效，当前版本为 {current_version}", Colors.YELLOW)
-
-
-def install_dependencies():
-    """安装项目依赖"""
-    print_color("\n[2/4] 安装依赖...", Colors.YELLOW)
-    run_command("npm install")
-    print_color("依赖安装完成", Colors.GREEN)
-
-
-def build_project(build_command):
-    """生产环境打包"""
-    print_color(f"\n[3/4] 执行打包: npm run {build_command}...", Colors.YELLOW)
-    run_command(f"npm run {build_command}")
-
-    if not os.path.exists(LOCAL_DIST_PATH):
-        print_color(f"错误: {LOCAL_DIST_PATH} 目录不存在，打包可能失败", Colors.RED)
-        sys.exit(1)
-
-    print_color("打包成功！", Colors.GREEN)
-
-
-def backup_remote_dir(ssh, remote_path):
-    """备份远程服务器上的旧版本"""
-    print_color("备份远程服务器上的旧版本...", Colors.YELLOW)
-    timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
-    backup_cmd = f"""
-        if [ -d '{remote_path}' ]; then
-            mv '{remote_path}' '{remote_path}.bak.{timestamp}'
-        fi
-        mkdir -p '{remote_path}'
-    """
-    stdin, stdout, stderr = ssh.exec_command(backup_cmd)
-    exit_status = stdout.channel.recv_exit_status()
-
-    if exit_status != 0:
-        error = stderr.read().decode()
-        print_color(f"备份失败: {error}", Colors.RED)
-        return False
-
-    print_color("备份成功", Colors.GREEN)
-    return True
-
-
-def upload_dir(sftp, local_dir, remote_dir):
-    """递归上传目录"""
-    for item in os.listdir(local_dir):
-        local_path = os.path.join(local_dir, item)
-        remote_path = remote_dir.replace("\\", "/") + "/" + item
-
-        if os.path.isfile(local_path):
-            print_color(f"上传: {item}", Colors.BLUE)
-            sftp.put(local_path, remote_path)
-        elif os.path.isdir(local_path):
-            try:
-                sftp.mkdir(remote_path)
-            except IOError:
-                pass
-            upload_dir(sftp, local_path, remote_path)
-
-
-def deploy_to_server(server_config):
-    """部署到服务器"""
-    print_color("\n[4/4] 部署到服务器...", Colors.YELLOW)
-    print_color(f"服务器: {server_config['host']}:{server_config['port']}", Colors.BLUE)
-    print_color(f"目标路径: {server_config['remote_path']}", Colors.BLUE)
-
-    # 建立 SSH 连接
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-
     try:
-        ssh.connect(
-            server_config['host'],
-            server_config['port'],
-            server_config['username'],
-            server_config['password']
-        )
-        print_color("SSH 连接成功", Colors.GREEN)
-
-        # 备份远程目录
-        if not backup_remote_dir(ssh, server_config['remote_path']):
-            sys.exit(1)
-
-        # 上传文件
-        print_color("开始上传文件...", Colors.YELLOW)
-        sftp = ssh.open_sftp()
-        upload_dir(sftp, LOCAL_DIST_PATH, server_config['remote_path'])
-        sftp.close()
-
-        print_color("\n========================================", Colors.GREEN)
-        print_color("部署成功！", Colors.GREEN)
-        print_color(f"服务器: {server_config['host']}", Colors.GREEN)
-        print_color(f"路径: {server_config['remote_path']}", Colors.GREEN)
-        print_color("前端访问路径前缀: /schedule/", Colors.GREEN)
-        print_color("========================================", Colors.GREEN)
-
+        ssh.connect(host, port=port, username=username, password=password, timeout=30)
     except Exception as e:
-        print_color(f"部署失败: {e}", Colors.RED)
+        print(f"[错误] SSH 连接失败: {e}", file=sys.stderr)
         sys.exit(1)
-    finally:
-        ssh.close()
+    print("[OK] SSH 连接成功")
+
+    # 备份旧版本
+    timestamp = time.strftime("%Y%m%d_%H%M%S")
+    backup_path = f"{remote_path}.bak.{timestamp}"
+    stdin, stdout, stderr = ssh.exec_command(f"test -d {remote_path} && echo yes || echo no")
+    if stdout.read().decode().strip() == "yes":
+        print(f"  备份旧版本 -> {backup_path}")
+        ssh.exec_command(f"cp -r {remote_path} {backup_path}")
+    else:
+        print("  远程目录不存在，跳过备份")
+
+    # 清空并重建远程目录
+    print(f"  清空并重建远程目录 ...")
+    ssh.exec_command(f"rm -rf {remote_path} && mkdir -p {remote_path}")
+
+    # 上传 tar.gz
+    remote_tar = f"/tmp/dist_deploy_{timestamp}.tar.gz"
+    print(f"  上传压缩包 ...")
+    sftp = ssh.open_sftp()
+    sftp.put(tar_path, remote_tar)
+
+    # 远程解压
+    print(f"  远程解压 ...")
+    stdin, stdout, stderr = ssh.exec_command(
+        f"tar -xzf {remote_tar} -C {remote_path} && rm -f {remote_tar} && echo ok"
+    )
+    result = stdout.read().decode().strip()
+    err = stderr.read().decode().strip()
+    sftp.close()
+    ssh.close()
+
+    if result != "ok" or err:
+        print(f"[错误] 解压失败: {err}", file=sys.stderr)
+        sys.exit(1)
+
+    print("[OK] 解压完成")
 
 
 def main():
-    """主函数 - 实际逻辑在 skill 中通过 AskUserQuestion 收集信息后调用"""
-    print_color("前端项目自动化部署", Colors.GREEN)
+    parser = argparse.ArgumentParser(description="前端项目自动化部署脚本")
+    parser.add_argument("--host", required=True, help="服务器地址")
+    parser.add_argument("--port", type=int, default=DEFAULT_SSH_PORT, help="SSH 端口 (默认 22)")
+    parser.add_argument("--username", default=DEFAULT_USERNAME, help="SSH 用户名 (默认 root)")
+    parser.add_argument("--password", required=True, help="SSH 密码")
+    parser.add_argument("--remote-path", default=DEFAULT_REMOTE_PATH, help="远程部署目录")
+    parser.add_argument("--build-cmd", default=DEFAULT_BUILD_COMMAND, help="npm 打包命令 (默认 build)")
+    parser.add_argument("--node-version", default=DEFAULT_NODE_VERSION, help="Node.js 版本 (默认 20.19.5)")
+    args = parser.parse_args()
+
+    print("=" * 50)
+    print("前端项目自动化部署")
     print("=" * 50)
 
     # 前置检查
     check_vfox()
-    check_package_json()
+    if not os.path.exists("package.json"):
+        print("[错误] 当前目录未找到 package.json，请在项目根目录运行", file=sys.stderr)
+        sys.exit(1)
+    print("[OK] package.json 存在")
 
-    # 显示可用的 build 脚本
-    scripts = get_available_scripts()
-    if scripts:
-        print_color("\n可用的打包脚本:", Colors.YELLOW)
-        for name, cmd in scripts.items():
-            print(f"  - {name}: {cmd}")
+    # 执行部署流程
+    switch_node(args.node_version)
+    install_deps()
+    build_project(args.build_cmd)
+    tar_path = make_tar()
+    deploy(tar_path, args.host, args.port, args.username, args.password, args.remote_path)
+
+    # 清理本地 tar
+    os.remove(tar_path)
+
+    print("\n" + "=" * 50)
+    print("部署成功！")
+    print(f"  服务器: {args.host}")
+    print(f"  路径:   {args.remote_path}")
+    print("  访问:   /schedule/")
+    print("=" * 50)
 
 
 if __name__ == "__main__":
