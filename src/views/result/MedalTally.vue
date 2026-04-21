@@ -3,7 +3,7 @@
     <div class="title">{{ activeTitle }}</div>
     <el-tabs v-model="activeTab" @tab-click="handleTabClick">
       <el-tab-pane label="金牌榜" name="game"></el-tab-pane>
-      <el-tab-pane label="总分榜" name="score"></el-tab-pane>
+      <!-- <el-tab-pane label="总分榜" name="score"></el-tab-pane> -->
       <!-- <el-tab-pane label="竞技体育贡献奖" name="compete"></el-tab-pane> -->
       <!-- <el-tab-pane label="体教融合贡献奖" name="educate"></el-tab-pane> -->
     </el-tabs>

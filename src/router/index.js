@@ -93,14 +93,14 @@ const routes = [
         path: 'main/item/unitType/:unitTypeId',
         component: ItemMedal
       },
-      {
-        path: 'score',
-        component: MainScore
-      },
-      {
-        path: 'score/item/unitType/:unitTypeId',
-        component: ItemScore
-      },
+      // {
+      //   path: 'score',
+      //   component: MainScore
+      // },
+      // {
+      //   path: 'score/item/unitType/:unitTypeId',
+      //   component: ItemScore
+      // },
       {
         path: 'race',
         component: RaceMedal
