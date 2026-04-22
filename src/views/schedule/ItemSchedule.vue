@@ -118,6 +118,21 @@
             width="100"
           />
           <el-table-column
+            v-if="isYoung"
+            label="教练"
+            align="center"
+            width="150"
+            show-overflow-tooltip
+          >
+            <template slot-scope="scope">
+              {{
+                scope.row.coachNames
+                  ? scope.row.coachNames.replace(/,/g, "/")
+                  : ""
+              }}
+            </template>
+          </el-table-column>
+          <el-table-column
             label="备注"
             align="center"
             prop="remark"
