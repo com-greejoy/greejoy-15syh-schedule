@@ -8,7 +8,7 @@ module.exports = {
     port: 8848,
     proxy: {
       [process.env.VUE_APP_BASE_API]: {
-        target: 'http://1.95.115.1/syh/back',
+        target: 'http://localhost:8081',
         changeOrigin: true,
         pathRewrite: {
           ['^' + process.env.VUE_APP_BASE_API]: ''
@@ -16,10 +16,6 @@ module.exports = {
       },
       '/profile' : {
         target: 'http://localhost:8081',
-        secure: false
-      },
-      '/api/game/sporter/slavePhoto' : {
-        target: 'http://1.95.115.1/syh/back',
         secure: false
       }
     }
