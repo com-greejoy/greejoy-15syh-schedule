@@ -133,7 +133,6 @@ import { listUnitType } from "network/game/unitType";
 import { listItem } from "network/game/item";
 import { listInitRace } from "network/game/race";
 import { listGameSporter } from "network/game/sporter";
-import { sortUnitTypeByOrder } from "common/utils";
 
 export default {
   name: "SporterView",
@@ -211,7 +210,9 @@ export default {
         isAsc: "asc",
       }).then((res) => {
         if (this.$store.getters.categoryCode == "young") {
-          this.unitTypeList = sortUnitTypeByOrder(res.rows);
+          this.unitTypeList = res.rows.sort(
+            (a, b) => (a.orderNum ?? Infinity) - (b.orderNum ?? Infinity)
+          );
         } else {
           this.unitTypeList = res.rows;
         }

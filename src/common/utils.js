@@ -75,39 +75,3 @@ export function sortJudgeByLevel(arr) {
   return arr;
 }
 
-//市州行政排序
-export function sortUnitTypeByOrder(arr) {
-  //成都、自贡、攀枝花、泸州、德阳、绵阳、广元、遂宁、内江、乐山、南充、宜宾、广安、
-  //达州、巴中、雅安、眉山、资阳、阿坝、甘孜、凉山
-  const unitTypeOrder = [
-    '成都',
-    '自贡',
-    '攀枝花',
-    '泸州',
-    '德阳',
-    '绵阳',
-    '广元',
-    '遂宁',
-    '内江',
-    '乐山',
-    '南充',
-    '宜宾',
-    '广安',
-    '达州',
-    '巴中',
-    '雅安',
-    '眉山',
-    '资阳',
-    '阿坝',
-    '甘孜',
-    '凉山'
-  ];
-  unitTypeOrder.reverse();
-  arr.forEach(u => {
-    u.typeIndex = unitTypeOrder.indexOf(u.name);
-  });
-  arr.sort((a, b) => {
-    return a.typeIndex > b.typeIndex ? -1 : (a.typeIndex < b.typeIndex ? 1 : 0);
-  });
-  return arr;
-}
