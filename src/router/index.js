@@ -29,6 +29,7 @@ const ItemView = () => import('views/game/ItemView');
 const ItemInfo = () => import('views/game/ItemInfo');
 const GameRule = () => import('views/game/GameRule');
 const SheetView = () => import('views/game/SheetView');
+const HonorView = () => import('views/game/HonorView');
 
 Vue.use(VueRouter)
 
@@ -40,7 +41,7 @@ const routes = [
   },
   {
     path: '/',
-    redirect: {name: 'GameRule'}
+    redirect: { name: 'GameRule' }
   },
   {
     path: '/schedule/total',
@@ -143,6 +144,11 @@ const routes = [
     component: SporterInfo
   },
   {
+    path: '/game/honor',
+    name: 'HonorView',
+    component: HonorView
+  },
+  {
     path: '/game/unitType',
     name: 'UnitTypeView',
     component: UnitTypeView
@@ -193,7 +199,7 @@ const router = new VueRouter({
   base: process.env.BASE_URL,
   routes,
   //路由点击后跳转到页面顶部
-  scrollBehavior (to, from, savedPosition) {
+  scrollBehavior(to, from, savedPosition) {
     if (savedPosition) {
       return savedPosition
     } else {

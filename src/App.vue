@@ -23,6 +23,14 @@
           to="/result/medal"
           >奖牌</router-link
         >
+        <!--
+        <router-link
+          v-if="this.$store.getters.categoryCode == 'young'"
+          class="link"
+          to="/game/honor"
+          >荣誉</router-link
+        >
+        -->
         <router-link class="link" to="/game/judge">裁判员</router-link>
         <!--
         <router-link
@@ -49,8 +57,12 @@
     </div>
     <div id="beian">
       <img class="beian-icon" src="~assets/img/beian-icon.png" />
-      <a style="margin-right: 20px;" href=" " rel="noreferrer" target="_blank">川公网安备51160202511962号</a>
-      <a target="_blank" href="https://beian.miit.gov.cn/#/Integrated/index">备案号：蜀ICP备2025145529号-3</a>
+      <a style="margin-right: 20px" href=" " rel="noreferrer" target="_blank"
+        >川公网安备51160202511962号</a
+      >
+      <a target="_blank" href="https://beian.miit.gov.cn/#/Integrated/index"
+        >备案号：蜀ICP备2025145529号-3</a
+      >
     </div>
   </div>
 </template>
@@ -59,11 +71,11 @@
 import GameInfo from "views/game/GameInfo";
 export default {
   components: {
-    GameInfo
+    GameInfo,
   },
   data() {
     return {
-      routerViewAlive: true
+      routerViewAlive: true,
     };
   },
   computed: {
@@ -72,7 +84,7 @@ export default {
     },
     categoryId() {
       return this.$store.getters.categoryId;
-    }
+    },
   },
   watch: {
     categoryId(newVal, oldVal) {
@@ -82,13 +94,13 @@ export default {
           this.routerViewAlive = true;
         });
       }
-    }
+    },
   },
   methods: {
     toHome() {
       window.location.href = process.env.VUE_APP_HOST_URL;
-    }
-  }
+    },
+  },
 };
 </script>
 
