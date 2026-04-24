@@ -4,13 +4,19 @@
 支持：Node 版本切换 → 安装依赖 → 生产打包 → tar.gz 打包 → SSH 上传 → 远程解压
 
 用法:
-    python scripts/deploy.py --host=1.95.115.1 --password=xxx [选项]
+    python scripts/deploy.py [选项]
+
+默认配置（无需参数直接运行）:
+    --host=1.95.115.1
+    --remote-path=/opt/1panel/www/sites/schedule/dist
+    --key-file=~/.ssh/id_ed25519_15syh
 
 选项:
-    --host          服务器地址 (必填)
+    --host          服务器地址 (默认: 1.95.115.1)
     --port          SSH 端口 (默认: 22)
     --username      SSH 用户名 (默认: root)
-    --password      SSH 密码 (必填)
+    --key-file      SSH 私钥路径 (默认: ~/.ssh/id_ed25519_15syh)
+    --password      SSH 密码 (可选，密钥失败时后备)
     --remote-path   远程部署目录 (默认: /opt/1panel/www/sites/schedule/dist)
     --build-cmd     npm 打包命令 (默认: build)
     --node-version  Node.js 版本 (默认: 20.19.5)
@@ -94,19 +100,51 @@ def make_tar():
     return tar_path
 
 
-def deploy(tar_path, host, port, username, password, remote_path):
+def connect_ssh(host, port, username, password=None, key_file=None):
+    """建立 SSH 连接，优先密钥认证，失败则回退密码认证。"""
+    ssh = paramiko.SSHClient()
+    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+
+    pkey = None
+    if key_file and os.path.isfile(key_file):
+        try:
+            pkey = paramiko.Ed25519Key.from_private_key_file(key_file)
+        except Exception:
+            try:
+                pkey = paramiko.RSAKey.from_private_key_file(key_file)
+            except Exception:
+                pkey = None
+
+    if pkey:
+        try:
+            ssh.connect(host, port=port, username=username, pkey=pkey, timeout=15)
+            print("[OK] SSH 密钥认证成功")
+            return ssh
+        except Exception as e:
+            if not password:
+                print(f"[错误] SSH 密钥认证失败: {e}", file=sys.stderr)
+                sys.exit(1)
+            print("  密钥认证失败，尝试密码认证...")
+
+    if not password:
+        print("[错误] 无可用认证方式（密钥失败且未提供密码）", file=sys.stderr)
+        sys.exit(1)
+
+    try:
+        ssh.connect(host, port=port, username=username, password=password, timeout=15)
+        print("[OK] SSH 密码认证成功")
+        return ssh
+    except Exception as e:
+        print(f"[错误] SSH 连接失败: {e}", file=sys.stderr)
+        sys.exit(1)
+
+
+def deploy(tar_path, host, port, username, password, key_file, remote_path):
     """SSH 连接、备份、上传、解压。"""
     print(f"\n[5/5] 部署到服务器 {host}:{port} ...")
     print(f"  远程路径: {remote_path}")
 
-    ssh = paramiko.SSHClient()
-    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    try:
-        ssh.connect(host, port=port, username=username, password=password, timeout=30)
-    except Exception as e:
-        print(f"[错误] SSH 连接失败: {e}", file=sys.stderr)
-        sys.exit(1)
-    print("[OK] SSH 连接成功")
+    ssh = connect_ssh(host, port, username, password, key_file)
 
     # 备份旧版本
     timestamp = time.strftime("%Y%m%d_%H%M%S")
@@ -147,10 +185,12 @@ def deploy(tar_path, host, port, username, password, remote_path):
 
 def main():
     parser = argparse.ArgumentParser(description="前端项目自动化部署脚本")
-    parser.add_argument("--host", required=True, help="服务器地址")
+    parser.add_argument("--host", default="1.95.115.1", help="服务器地址 (默认: 1.95.115.1)")
     parser.add_argument("--port", type=int, default=DEFAULT_SSH_PORT, help="SSH 端口 (默认 22)")
     parser.add_argument("--username", default=DEFAULT_USERNAME, help="SSH 用户名 (默认 root)")
-    parser.add_argument("--password", required=True, help="SSH 密码")
+    parser.add_argument("--key-file", default=os.path.expanduser("~/.ssh/id_ed25519_15syh"),
+                        help="SSH 私钥路径 (默认: ~/.ssh/id_ed25519_15syh)")
+    parser.add_argument("--password", default=None, help="SSH 密码 (可选，密钥失败时后备)")
     parser.add_argument("--remote-path", default=DEFAULT_REMOTE_PATH, help="远程部署目录")
     parser.add_argument("--build-cmd", default=DEFAULT_BUILD_COMMAND, help="npm 打包命令 (默认 build)")
     parser.add_argument("--node-version", default=DEFAULT_NODE_VERSION, help="Node.js 版本 (默认 20.19.5)")
@@ -158,6 +198,8 @@ def main():
 
     print("=" * 50)
     print("前端项目自动化部署")
+    print(f"  服务器: {args.host}")
+    print(f"  路径:   {args.remote_path}")
     print("=" * 50)
 
     # 前置检查
@@ -172,7 +214,7 @@ def main():
     install_deps()
     build_project(args.build_cmd)
     tar_path = make_tar()
-    deploy(tar_path, args.host, args.port, args.username, args.password, args.remote_path)
+    deploy(tar_path, args.host, args.port, args.username, args.password, args.key_file, args.remote_path)
 
     # 清理本地 tar
     os.remove(tar_path)

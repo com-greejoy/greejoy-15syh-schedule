@@ -1,6 +1,6 @@
 ---
 name: frontend-deploy
-description: 前端项目自动化打包部署工具。当前项目为 Vue 2 + Vue CLI 项目。当用户需要打包并部署到服务器时使用此 skill。功能包括：使用 vfox 管理 Node.js 版本、安装依赖、生产环境打包、通过 SSH/SFTP 上传到服务器。支持多服务器配置管理，密码在流程开始时输入。
+description: 前端项目自动化打包部署工具。当前项目为 Vue 2 + Vue CLI 项目。当用户需要打包并部署到服务器时使用此 skill。功能包括：使用 vfox 管理 Node.js 版本、安装依赖、生产环境打包、通过 SSH/SFTP 上传到服务器。默认使用 SSH 密钥认证，无需输入密码。
 ---
 
 # 前端项目自动化部署
@@ -14,89 +14,40 @@ description: 前端项目自动化打包部署工具。当前项目为 Vue 2 + V
 - "build and deploy"
 - "部署到服务器"
 
+## 默认配置
+
+以下为项目级默认值，用户未指定时直接使用：
+
+| 配置项        | 默认值                                                           |
+| ------------- | ---------------------------------------------------------------- |
+| 服务器地址    | `1.95.115.1`                                                     |
+| SSH 用户      | `root`                                                           |
+| SSH 端口      | `22`                                                             |
+| 远程路径      | `/opt/1panel/www/sites/schedule/dist`                            |
+| Node.js 版本  | `20.19.5`                                                        |
+| 打包命令      | `build`                                                          |
+| SSH 密钥      | `~/.ssh/id_ed25519_15syh`（密钥认证优先，失败则提示密码）       |
+
 ## 部署流程
 
-### 第一步：收集部署信息（必须）
+### 第一步：一键执行部署脚本（使用默认配置，无需询问）
 
-**在开始任何操作之前，必须使用 `AskUserQuestion` 工具收集以下信息：**
+**直接运行 skill 目录下的部署脚本：**
 
-#### 问题 1：选择服务器配置
-
-```json
-{
-  "question": "请选择要部署的目标服务器？",
-  "options": [
-    { "label": "生产环境", "description": "1.95.115.1:22 - /opt/1panel/www/sites/schedule/dist" },
-    { "label": "测试环境", "description": "自定义测试服务器" },
-    { "label": "自定义", "description": "输入其他服务器配置" }
-  ]
-}
+```bash
+python .claude/skills/frontend-deploy/scripts/deploy.py
 ```
 
-**如果用户选择"自定义"，继续追问：**
+需要覆盖默认值时：
 
-```json
-{
-  "question": "请输入自定义服务器配置",
-  "options": [
-    { "label": "服务器 IP", "description": "例如: 192.168.1.100" },
-    { "label": "端口", "description": "默认 22" },
-    { "label": "用户名", "description": "例如: root" },
-    { "label": "远程路径", "description": "例如: /var/www/html/dist" }
-  ]
-}
-```
-
-#### 问题 2：输入服务器密码
-
-```json
-{
-  "question": "请输入服务器登录密码？",
-  "options": [
-    { "label": "输入密码", "description": "密码仅用于本次部署，不会存储" }
-  ]
-}
-```
-
-**注意：** 密码必须在流程最开始就收集，不存储在变量中，仅通过命令行参数传给部署脚本使用。
-
-#### 问题 3：选择打包命令
-
-当前项目 `package.json` 中的 scripts 为：dev、build、report。默认使用 `build`。
-
-```json
-{
-  "question": "请选择打包命令？",
-  "options": [
-    { "label": "build", "description": "生产环境打包（默认）" },
-    { "label": "report", "description": "打包并生成报告" }
-  ]
-}
-```
-
-### 第二步：一键执行部署脚本
-
-**收集完信息后，直接运行 skill 目录下的部署脚本，传入所有参数：**
-
-脚本位置：`.claude/skills/frontend-deploy/scripts/deploy.py`
-
-示例命令（生产环境）：
 ```bash
 python .claude/skills/frontend-deploy/scripts/deploy.py \
   --host=1.95.115.1 \
-  --password=你的密码 \
-  --build-cmd=build
-```
-
-自定义环境示例：
-```bash
-python .claude/skills/frontend-deploy/scripts/deploy.py \
-  --host=192.168.1.100 \
-  --port=22 \
-  --username=root \
-  --password=你的密码 \
-  --remote-path=/var/www/html/dist \
-  --build-cmd=build
+  --remote-path=/opt/1panel/www/sites/schedule/dist \
+  [--key-file ~/.ssh/id_ed25519_15syh] \
+  [--password 密码] \
+  [--build-cmd build] \
+  [--node-version 20.19.5]
 ```
 
 **脚本内部自动执行以下步骤：**
@@ -110,7 +61,13 @@ python .claude/skills/frontend-deploy/scripts/deploy.py \
 7. **远程解压** - 在服务器上解压到目标目录，自动备份旧版本
 8. **清理** - 删除本地 tar.gz
 
-### 第三步：部署确认
+**密钥认证说明：**
+
+- 脚本默认读取 `~/.ssh/id_ed25519_15syh` 进行密钥认证，无需输入密码
+- 如果密钥认证失败，且提供了 `--password`，则自动回退到密码认证
+- 如果密钥和密码都失败，脚本会报错退出
+
+### 第二步：部署确认
 
 - 显示部署结果
 - 报告成功或失败
@@ -127,13 +84,13 @@ python .claude/skills/frontend-deploy/scripts/deploy.py \
 
 ### 自定义配置
 
-用户可选择输入自定义服务器信息。
+用户可选择输入自定义服务器信息，通过 `--host`、`--port`、`--username`、`--remote-path` 等参数传入脚本。
 
 ## 脚本资源
 
 - `.claude/skills/frontend-deploy/scripts/deploy.py` - 一键部署脚本（Python + Paramiko）
   - 自动完成 Node 切换、依赖安装、打包、tar.gz 压缩、上传、解压全流程
-  - 支持命令行参数：--host, --port, --username, --password, --remote-path, --build-cmd, --node-version
+  - 支持命令行参数：`--host`、`--port`、`--username`、`--key-file`、`--password`、`--remote-path`、`--build-cmd`、`--node-version`
 
 ## 错误处理
 
@@ -143,7 +100,7 @@ python .claude/skills/frontend-deploy/scripts/deploy.py \
 | Node.js 版本切换失败 | 尝试安装该版本，失败后退出 |
 | npm install 失败 | 显示错误信息并退出 |
 | 打包失败 | 显示错误信息并退出 |
-| SSH 连接失败 | 检查网络和密码，提示重试 |
+| SSH 密钥认证失败 | 如提供了密码则回退密码认证，否则退出 |
 | 上传失败 | 显示错误信息并退出 |
 | 远程解压失败 | 显示错误信息并退出 |
 
@@ -155,3 +112,18 @@ python .claude/skills/frontend-deploy/scripts/deploy.py \
 - **上传策略**: 本地 tar.gz 打包 → SFTP 上传 → 远程解压（避免逐文件上传的目录层级问题）
 - **前端路径前缀**: `/schedule/`
 - **操作系统**: Windows/Linux/macOS
+
+## 密钥配置说明
+
+首次使用密钥认证前，需将本地公钥添加到服务器的 `~/.ssh/authorized_keys`：
+
+```bash
+# 在本地执行，将公钥复制到服务器
+cat ~/.ssh/id_ed25519_15syh.pub | ssh root@1.95.115.1 "mkdir -p ~/.ssh && cat >> ~/.ssh/authorized_keys && chmod 600 ~/.ssh/authorized_keys"
+```
+
+或使用密码方式（如服务器仍允许密码登录）：
+
+```bash
+ssh root@1.95.115.1 "mkdir -p ~/.ssh && echo '$(cat ~/.ssh/id_ed25519_15syh.pub)' >> ~/.ssh/authorized_keys && chmod 600 ~/.ssh/authorized_keys"
+```
