@@ -171,6 +171,8 @@
         if  itemId &&  raceId -> race
          */
         this.sheetList = [];
+        const categoryName = this.$store.getters.categoryName;
+        const sportType = categoryName && categoryName.endsWith('体育项目') ? '' : '体育项目';
         //game
         if (!this.queryParams.itemId) {
           listGameSheet(this.queryParams).then(res => {
@@ -178,14 +180,14 @@
               /*
               {
                 type: '参赛名单',
-                name: `${this.$store.getters.game.name}${this.$store.getters.categoryName}体育项目比赛参赛名单`,
+                name: `${this.$store.getters.game.name}${categoryName}体育项目比赛参赛名单`,
                 path: `/game/score/export/program?gameId=${this.$store.getters.game.id}&categoryId=${this.$store.getters.categoryId}`
               },
               */
               /*
               {
                 type: '名次公告',
-                name: `${this.$store.getters.game.name}${this.$store.getters.categoryName}体育项目比赛名次公告`,
+                name: `${this.$store.getters.game.name}${categoryName}体育项目比赛名次公告`,
                 path: `/game/score/export/result?gameId=${this.$store.getters.game.id}&categoryId=${this.$store.getters.categoryId}`
               }
               */
@@ -201,12 +203,12 @@
             const list = [
               {
                 type: '参赛名单',
-                name: `${this.$store.getters.game.name}${this.$store.getters.categoryName}体育项目${this.curItem.name}比赛参赛名单`,
+                name: `${this.$store.getters.game.name}${categoryName}${sportType}${this.curItem.name}比赛参赛名单`,
                 path: `/game/score/export/program?gameId=${this.$store.getters.game.id}&categoryId=${this.$store.getters.categoryId}&itemId=${this.queryParams.itemId}`
               },
               {
                 type: '名次公告',
-                name: `${this.$store.getters.game.name}${this.$store.getters.categoryName}体育项目${this.curItem.name}比赛名次公告`,
+                name: `${this.$store.getters.game.name}${categoryName}${sportType}${this.curItem.name}比赛名次公告`,
                 path: `/game/score/export/result?gameId=${this.$store.getters.game.id}&categoryId=${this.$store.getters.categoryId}&itemId=${this.queryParams.itemId}`
               }
             ];
@@ -221,12 +223,12 @@
             const list = [
               {
                 type: '参赛名单',
-                name: `${this.$store.getters.game.name}${this.$store.getters.categoryName}体育项目${this.curRace.name}比赛参赛名单`,
+                name: `${this.$store.getters.game.name}${categoryName}${sportType}${this.curRace.name}比赛参赛名单`,
                 path: `/game/score/export/race/program?gameId=${this.$store.getters.game.id}&categoryId=${this.$store.getters.categoryId}&raceId=${this.queryParams.raceId}`
               },
               {
                 type: '名次公告',
-                name: `${this.$store.getters.game.name}${this.$store.getters.categoryName}体育项目${this.curRace.name}比赛名次公告`,
+                name: `${this.$store.getters.game.name}${categoryName}${sportType}${this.curRace.name}比赛名次公告`,
                 path: `/game/score/export/race/result?gameId=${this.$store.getters.game.id}&categoryId=${this.$store.getters.categoryId}&raceId=${this.queryParams.raceId}`
               }
             ];
