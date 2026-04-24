@@ -49,10 +49,10 @@
       },
       activeTitle() {
         if (this.activeTab === 'game') {
-          return '四川省第十五届运动会青少年体育项目金牌榜';
+          return '“四川银行杯”四川省第十五届运动会青少年体育项目金牌榜';
         }
         if (this.activeTab === 'score') {
-          return '四川省第十五届运动会青少年体育项目总分榜';
+          return '“四川银行杯”四川省第十五届运动会青少年体育项目总分榜';
         }
       }
     },

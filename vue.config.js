@@ -35,7 +35,7 @@ module.exports = {
   chainWebpack: config =>{
     config.plugin('html')
       .tap(args => {
-        args[0].title = "四川省第十五届运动会 - 竞赛信息发布系统";
+        args[0].title = "\"四川银行杯\"四川省第十五届运动会 - 竞赛信息发布系统";
         return args;
       })
   },
