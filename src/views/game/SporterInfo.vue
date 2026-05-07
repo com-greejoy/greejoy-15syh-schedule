@@ -65,12 +65,46 @@
         </tbody>
       </table>
     </div>
+    <div v-if="honor" class="score honor-table">
+      <table>
+        <thead>
+          <tr>
+            <th class="left" style="width: 40%"><span>荣誉信息</span></th>
+            <th style="width: 30%"></th>
+            <th style="width: 10%">排名</th>
+            <th style="width: 20%"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="race left"><span></span></td>
+            <td></td>
+            <td class="rank-cell">第 {{ honor.rankNum }} 名</td>
+            <td class="medal-cell">
+              <span class="medal">
+                <img src="~assets/img/game/1st.png" />
+                <span>{{ formatMedal(honor.goldMedal) }}</span>
+              </span>
+              <span class="medal">
+                <img src="~assets/img/game/2nd.png" />
+                <span>{{ formatMedal(honor.silverMedal) }}</span>
+              </span>
+              <span class="medal">
+                <img src="~assets/img/game/3rd.png" />
+                <span>{{ formatMedal(honor.bronzeMedal) }}</span>
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </template>
 
 <script>
 import MedalImg from "views/components/MedalImg";
 import { getJoinSporter } from "network/game/sporter";
+import { listHonor } from "network/game/honor";
 
 export default {
   name: "SporterInfo",
@@ -83,6 +117,7 @@ export default {
       sexOptions: [],
       sporterId: null,
       sporter: {},
+      honor: null,
     };
   },
   created() {
@@ -92,10 +127,15 @@ export default {
     this.categoryId = this.$route.params.categoryId || null;
     this.sporterId = this.$route.params.sporterId || null;
     this.getJoinSporter();
+    this.loadHonor();
   },
   methods: {
     sexFormat(sex) {
       return this.selectDictLabel(this.sexOptions, sex);
+    },
+    formatMedal(val) {
+      if (val == null || val === 0) return 0;
+      return Number.isInteger(val) ? val : val.toFixed(1);
     },
     getJoinSporter() {
       this.loading = true;
@@ -104,6 +144,21 @@ export default {
         this.loading = false;
         this.sporter = res.data;
       });
+    },
+    loadHonor() {
+      if (!this.sporterId) return;
+      listHonor({
+        gameAthleteId: this.sporterId,
+        pageNum: 1,
+        pageSize: 1,
+      })
+        .then((res) => {
+          const rows = res.rows || [];
+          this.honor = rows.length ? rows[0] : null;
+        })
+        .catch(() => {
+          this.honor = null;
+        });
     },
     handleJoinClick(race) {
       this.$router.push(`/schedule/item/${race.itemId}/${race.raceId}`);
@@ -189,6 +244,26 @@ export default {
         width: @h - 18px;
         height: @h - 18px;
         vertical-align: middle;
+      }
+    }
+  }
+
+  .honor-table {
+    table tbody td {
+      &.rank-cell {
+        color: @t-color-m1;
+        font-weight: 600;
+      }
+      &.medal-cell {
+        .medal {
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
+          margin-right: 12px;
+          &:last-child {
+            margin-right: 0;
+          }
+        }
       }
     }
   }

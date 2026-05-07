@@ -23,14 +23,12 @@
           to="/result/medal"
           >奖牌</router-link
         >
-        <!--
         <router-link
           v-if="this.$store.getters.categoryCode == 'young'"
           class="link"
           to="/game/honor"
           >荣誉</router-link
         >
-        -->
         <router-link class="link" to="/game/judge">裁判员</router-link>
         <!--
         <router-link
