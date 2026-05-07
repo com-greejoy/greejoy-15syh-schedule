@@ -69,7 +69,7 @@
       <table>
         <thead>
           <tr>
-            <th class="left" style="width: 40%"><span>荣誉信息</span></th>
+            <th class="left" style="width: 40%"><span>荣誉运动员</span></th>
             <th style="width: 30%"></th>
             <th style="width: 10%">排名</th>
             <th style="width: 20%"></th>
