@@ -118,8 +118,9 @@ export default {
   margin: 0 auto;
   padding: 30px 0px;
   img {
-    width: 604px;
-    height: 103px;
+    max-width: 100%;
+    height: auto;
+    max-height: 103px;
     object-fit: contain;
     cursor: pointer;
   }
