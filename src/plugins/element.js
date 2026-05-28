@@ -26,7 +26,8 @@ import {
   Image,
   Tooltip,
   Dialog,
-  Switch
+  Switch,
+  Link
 } from 'element-ui';
 
 
@@ -55,6 +56,7 @@ Vue.use(Image);
 Vue.use(Tooltip);
 Vue.use(Dialog);
 Vue.use(Switch);
+Vue.use(Link);
 
 Vue.prototype.$message = Message;
 Vue.prototype.$confirm = MessageBox.confirm;

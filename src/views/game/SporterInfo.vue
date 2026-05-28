@@ -24,24 +24,50 @@
         </el-form>
       </div>
     </div>
-    <div class="wrapper">
-      <div class="title left">
-        <span>报项</span>
-      </div>
-      <div class="join left">
-        <span v-for="race in sporter.raceList" @click="handleJoinClick(race)">
-          {{ race.name }}
-        </span>
-      </div>
+    <div class="score join-table">
+      <table>
+        <thead>
+          <tr>
+            <th class="left" :style="{ width: showMassCert ? '88%' : '100%' }">
+              <span>报项</span>
+            </th>
+            <th v-if="showMassCert" style="width: 12%">证书</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="race left">
+              <div class="join-list">
+                <span
+                  v-for="race in sporter.raceList"
+                  @click="handleJoinClick(race)"
+                  >{{ race.name }}</span
+                >
+              </div>
+            </td>
+            <td v-if="showMassCert">
+              <el-link
+                type="primary"
+                :underline="false"
+                @click="handleJoinCertClick"
+                >参赛证书</el-link
+              >
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
     <div class="score">
       <table>
         <thead>
           <tr>
-            <th class="left" style="width: 40%"><span>名次信息</span></th>
-            <th style="width: 30%">成绩</th>
+            <th class="left" :style="{ width: showCertColumn ? '34%' : '40%' }">
+              <span>名次信息</span>
+            </th>
+            <th :style="{ width: showCertColumn ? '24%' : '30%' }">成绩</th>
             <th style="width: 10%">名次</th>
             <th style="width: 20%"></th>
+            <th v-if="showCertColumn" style="width: 12%">证书</th>
           </tr>
         </thead>
         <tbody>
@@ -58,6 +84,22 @@
                 :show-order-index="false"
               />
             </td>
+            <td v-if="showCertColumn">
+              <el-link
+                v-if="showMassCert"
+                type="primary"
+                :underline="false"
+                @click="handleAwardCertClick(res)"
+                >获奖证书</el-link
+              >
+              <el-link
+                v-else-if="showYoungCert && res.certNumber"
+                type="primary"
+                :underline="false"
+                @click="handleYoungCertClick(res)"
+                >获奖证书</el-link
+              >
+            </td>
           </tr>
           <tr v-if="!sporter.resultList || !sporter.resultList.length">
             <td class="race left"><span>无信息</span></td>
@@ -65,6 +107,11 @@
         </tbody>
       </table>
     </div>
+    <cert-dialog
+      :visible.sync="certDialogVisible"
+      :cert-type="certType"
+      :cert-data="certData"
+    />
     <div v-if="honor" class="score honor-table">
       <table>
         <thead>
@@ -105,11 +152,17 @@
 import MedalImg from "views/components/MedalImg";
 import { getJoinSporter } from "network/game/sporter";
 import { listHonor } from "network/game/honor";
+import CertDialog from "views/game/cert/CertDialog";
+import {
+  buildJoinCertData,
+  buildAwardCertData,
+} from "views/game/cert/certDataBuilder";
 
 export default {
   name: "SporterInfo",
   components: {
     MedalImg,
+    CertDialog,
   },
   data() {
     return {
@@ -118,7 +171,24 @@ export default {
       sporterId: null,
       sporter: {},
       honor: null,
+      certDialogVisible: false,
+      certType: "join",
+      certData: null,
     };
+  },
+  computed: {
+    showMassCert() {
+      return (
+        this.$store.getters.categoryCode &&
+        this.$store.getters.categoryCode !== "young"
+      );
+    },
+    showYoungCert() {
+      return this.$store.getters.categoryCode === "young";
+    },
+    showCertColumn() {
+      return this.showMassCert || this.showYoungCert;
+    },
   },
   created() {
     this.getDicts("gm_person_sex").then((response) => {
@@ -166,6 +236,26 @@ export default {
     handleScoreClick(res) {
       this.$router.push(`/schedule/item/${res.itemId}/${res.raceId}`);
     },
+    handleJoinCertClick() {
+      const data = buildJoinCertData(this.sporter);
+      if (!data) return;
+      this.certType = "join";
+      this.certData = data;
+      this.certDialogVisible = true;
+    },
+    handleAwardCertClick(res) {
+      const data = buildAwardCertData(this.sporter, res);
+      if (!data) return;
+      this.certType = "award";
+      this.certData = data;
+      this.certDialogVisible = true;
+    },
+    handleYoungCertClick(res) {
+      if (!res || !res.certNumber) return;
+      const base = process.env.VUE_APP_CERT_URL || "";
+      const url = `${base}#/query/${res.certNumber}`;
+      window.open(url, "_blank");
+    },
   },
 };
 </script>
@@ -204,13 +294,25 @@ export default {
         margin-bottom: 8px;
       }
     }
-    .join {
+  }
+
+  .join-table {
+    margin-bottom: 20px;
+    table tbody tr {
+      line-height: normal;
+    }
+    .join-list {
       display: flex;
       flex-wrap: wrap;
-      line-height: 40px;
-      margin-bottom: 20px;
+      line-height: 36px;
+      padding: 8px 0 8px 20px;
       span {
         cursor: pointer;
+        margin-right: 24px;
+        margin-left: 0;
+        &:last-child {
+          margin-right: 0;
+        }
         &:hover {
           color: @t-color-m1;
         }
