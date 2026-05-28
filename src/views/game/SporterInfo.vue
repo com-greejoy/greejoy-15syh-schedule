@@ -116,10 +116,13 @@
       <table>
         <thead>
           <tr>
-            <th class="left" style="width: 40%"><span>荣誉运动员</span></th>
-            <th style="width: 30%"></th>
+            <th class="left" :style="{ width: showCertColumn ? '34%' : '40%' }">
+              <span>荣誉运动员</span>
+            </th>
+            <th :style="{ width: showCertColumn ? '24%' : '30%' }"></th>
             <th style="width: 10%">排名</th>
             <th style="width: 20%"></th>
+            <th v-if="showCertColumn" style="width: 12%"></th>
           </tr>
         </thead>
         <tbody>
@@ -141,6 +144,7 @@
                 <span>{{ formatMedal(honor.bronzeMedal) }}</span>
               </span>
             </td>
+            <td v-if="showCertColumn"></td>
           </tr>
         </tbody>
       </table>
