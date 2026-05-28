@@ -105,16 +105,9 @@
           />
           <el-table-column
             v-if="isYoung"
-            label="计分"
+            label="超破计牌"
             align="center"
-            prop="score"
-            width="100"
-          />
-          <el-table-column
-            v-if="isYoung"
-            label="超破计分"
-            align="center"
-            prop="extra.extraScore"
+            prop="extra.extraMedal"
             width="100"
           />
           <el-table-column

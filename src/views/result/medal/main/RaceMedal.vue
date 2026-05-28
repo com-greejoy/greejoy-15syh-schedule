@@ -45,16 +45,9 @@
           width="80"
         />
         <el-table-column
-          label="计分"
+          label="超破计牌"
           align="center"
-          prop="score"
-          sortable
-          width="80"
-        />
-        <el-table-column
-          label="超破计分"
-          align="center"
-          prop="extra.extraScore"
+          prop="extra.extraMedal"
           sortable
           width="100"
           fixed="right"
