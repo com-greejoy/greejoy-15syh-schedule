@@ -23,7 +23,7 @@
       <table>
         <!--head >>>-->
         <tr>
-          <td rowspan="2" class="item head" width="150px"><div>项目名称</div></td>
+          <td rowspan="2" class="item head" width="190px"><div>项目名称</div></td>
           <td v-for="date in dateSlice(matchDateList)">
             {{ date.matchDate | dateFmt('MM-DD') }}
           </td>
@@ -386,7 +386,6 @@
             text-align: center;
           }
           div {
-            padding-left: 15px;
             text-align: left;
           }
           img {

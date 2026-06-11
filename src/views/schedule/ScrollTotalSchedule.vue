@@ -494,7 +494,7 @@
       .wrapper-left {
         position: relative;
         z-index: 999;
-        min-width: 150px;
+        min-width: 190px;
         margin-right: -1px;
       }
       .wrapper-right {
@@ -533,7 +533,6 @@
             text-align: center;
           }
           div {
-            padding-left: 15px;
             text-align: left;
           }
           img {
