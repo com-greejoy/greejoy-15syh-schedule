@@ -11,10 +11,14 @@
       <el-breadcrumb separator-class="el-icon-arrow-right" v-show="paths && paths.length > 1">
         <el-breadcrumb-item
           v-for="(p, index) in paths"
-          :to="index == paths.length-1 ? null : {path:p.to}"
-          @click.native="handlePathClick(index)"
+          :key="`${p.to}-${index}`"
         >
-          {{p.name}}
+          <span
+            v-if="index < paths.length - 1"
+            class="breadcrumb-link"
+            @click="handlePathClick(index, p)"
+          >{{ p.name }}</span>
+          <span v-else>{{ p.name }}</span>
         </el-breadcrumb-item>
       </el-breadcrumb>
     </div>
@@ -63,19 +67,20 @@
       loadActiveTab(activeTab) {
         this.activeTab = activeTab;
       },
-      handlePathClick(index) {
+      handlePathClick(index, path) {
+        if (index >= this.paths.length - 1) {
+          return;
+        }
         if (this.activeTab === 'game') {
           this.$store.dispatch('splitMedalPaths', index);
-        }
-        if (this.activeTab === 'score') {
+        } else if (this.activeTab === 'score') {
           this.$store.dispatch('splitScorePaths', index);
-        }
-        if (this.activeTab === 'compete') {
+        } else if (this.activeTab === 'compete') {
           this.$store.dispatch('splitCompetePaths', index);
-        }
-        if (this.activeTab === 'educate') {
+        } else if (this.activeTab === 'educate') {
           this.$store.dispatch('splitEducatePaths', index);
         }
+        this.$router.push(path.to);
       },
       handleTabClick() {
         if (this.activeTab === 'game') {
@@ -103,6 +108,12 @@
     }
     .data {
       margin-top: 14px;
+    }
+    .breadcrumb-link {
+      cursor: pointer;
+      &:hover {
+        color: @t-color-m1;
+      }
     }
   }
 </style>
