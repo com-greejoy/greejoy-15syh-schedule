@@ -96,8 +96,7 @@ export default {
       if (!count) {
         return;
       }
-      const to = `/result/medal/race?
-        slaveItemId=${row.slaveItemId}&unitTypeId=${this.unitTypeId}&orderIndex=${orderIndex}`;
+      const to = `/result/medal/race?slaveItemId=${row.slaveItemId}&unitTypeId=${this.unitTypeId}&orderIndex=${orderIndex}`;
       const path = {
         to: to,
         name: row.itemStr,

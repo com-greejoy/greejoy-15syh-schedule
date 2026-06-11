@@ -175,7 +175,6 @@ export default {
           unitTypeId: this.unitTypeId,
           orderIndexStart: 1,
           orderIndexEnd: 3,
-          orderIndexScopedType: "medal",
         }).then((res) => {
           this.dataList[index].resultList = res.rows;
         });

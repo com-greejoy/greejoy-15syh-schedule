@@ -70,6 +70,7 @@ export default {
       slaveItemId: null,
       unitTypeId: null,
       orderIndex: null,
+      activeTab: "game",
       dataList: [],
     };
   },
@@ -78,9 +79,9 @@ export default {
     this.slaveItemId = this.$route.query.slaveItemId || null;
     this.unitTypeId = this.$route.query.unitTypeId || null;
     this.orderIndex = this.$route.query.orderIndex || null;
+    this.activeTab = this.$route.query.activeTab || "game";
     this.getDataList();
-    const activeTab = this.$route.query.activeTab || "game";
-    this.$emit("loadActiveTab", activeTab);
+    this.$emit("loadActiveTab", this.activeTab);
   },
   methods: {
     getDataList() {
@@ -95,7 +96,13 @@ export default {
           orderIndex: this.orderIndex == 0 ? 0 : null,
           orderIndexStart: this.orderIndex,
           orderIndexEnd: this.orderIndex,
-          orderIndexScopedType: "medal",
+          // 奖牌榜下钻时按奖牌类型筛选（1金/2银/3铜），与金牌榜统计口径一致
+          // （如第二名计金牌的项目）；总分榜（score）下钻仍按名次筛选
+          medalType:
+            this.activeTab === "game" &&
+            [1, 2, 3].includes(Number(this.orderIndex))
+              ? String(this.orderIndex)
+              : null,
         };
 
         listResult(params).then((res) => {
