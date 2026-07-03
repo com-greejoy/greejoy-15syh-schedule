@@ -112,15 +112,15 @@
           />
           <el-table-column
             v-if="isYoung"
-            label="教练"
+            label="运动员"
             align="center"
             width="150"
             show-overflow-tooltip
           >
             <template slot-scope="scope">
               {{
-                scope.row.coachNames
-                  ? scope.row.coachNames.replace(/,/g, "/")
+                scope.row.sporterList
+                  ? scope.row.sporterList.map((s) => s.name).join("/")
                   : ""
               }}
             </template>
