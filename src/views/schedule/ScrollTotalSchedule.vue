@@ -326,7 +326,7 @@
           }
 
           if (flag) {
-            let left = ((i > 0 ? i - 1 : i) + 1) * 80; //每列最低宽度80px
+            let left = ((i > 0 ? i - 1 : i) + 1) * 54; //每列最低宽度54px
             let wrp = document.querySelector('.wrapper-center');
             wrp.scrollLeft += left;
             this.initIndex = i;
@@ -506,7 +506,12 @@
         scroll-behavior: smooth;
         overflow-x: hidden;
         td {
-          min-width: 80px;
+          min-width: 56px;
+        }
+        // 日期、星期两行字体稍小，避免列宽变窄后显得拥挤
+        tr:first-child td,
+        tr:nth-child(2) td {
+          font-size: 14px;
         }
       }
     }
@@ -590,18 +595,33 @@
             .show-chunk();
             background-color: @t-color-t1;
             font-size: 14px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: inline-flex;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 0 1px 0 3px;
+
+            img {
+              width: 18px;
+              height: 18px;
+              margin-right: -2px;
+            }
           }
 
           .has-game {
             .show-chunk();
             cursor: pointer;
             background-color: @t-color-t1;
+            font-size: 16px;
           }
 
           .has-final {
             .show-chunk();
             cursor: pointer;
             background-color: @t-color-m2;
+            font-size: 16px;
           }
 
           .has-parallel {
