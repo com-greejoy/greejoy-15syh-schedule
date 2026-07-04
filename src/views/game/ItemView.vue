@@ -29,8 +29,37 @@
           orderByColumn: 'i.orderNum',
           isAsc: 'asc'
         }).then(res => {
-          this.itemList = res.rows;
+          this.itemList = this.splitSpecialItems(res.rows);
         });
+      },
+      splitSpecialItems(list) {
+        if (!Array.isArray(list)) {
+          return [];
+        }
+        const result = [];
+        list.forEach(item => {
+          if (item.name === '足球') {
+            result.push(item);
+            result.push({
+              ...item,
+              name: '八人足球',
+              orderNum: item.orderNum + 1
+            });
+          } else if (item.name === '轮滑冰球(女子冰球)') {
+            result.push({
+              ...item,
+              name: '轮滑冰球'
+            });
+            result.push({
+              ...item,
+              name: '女子冰球',
+              orderNum: item.orderNum + 1
+            });
+          } else {
+            result.push(item);
+          }
+        });
+        return result.sort((a, b) => a.orderNum - b.orderNum);
       }
     }
   }
