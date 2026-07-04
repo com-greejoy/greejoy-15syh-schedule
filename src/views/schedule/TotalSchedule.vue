@@ -50,7 +50,14 @@
         </tr>
         <tr v-for="item in itemMatchDateList" class="data">
           <!--项目-->
-          <td class="item"><div><img :src="item.icon">{{ item.itemName }}</div></td>
+          <td class="item">
+            <div>
+              <img :src="item.icon">
+              <el-tooltip :content="item.itemName" placement="top-start" :open-delay="300">
+                <span class="item-name">{{ item.itemName }}</span>
+              </el-tooltip>
+            </div>
+          </td>
           <!--数据-->
           <td
             v-for="data in dateSlice(item.matchDateList)"
@@ -390,6 +397,14 @@
           }
           img {
             margin-left: 10px;
+          }
+          .item-name {
+            display: inline-block;
+            vertical-align: middle;
+            max-width: calc(100% - 39px);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
           }
         }
 

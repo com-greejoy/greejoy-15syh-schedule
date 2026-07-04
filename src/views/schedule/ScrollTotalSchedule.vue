@@ -29,7 +29,14 @@
             <td class="item"><div><img src="~/assets/img/schedule/ceremony.png">仪式</div></td>
           </tr>
           <tr v-for="item in itemMatchDateList" class="data">
-            <td class="item"><div><img :src="item.icon">{{ item.itemName }}</div></td>
+            <td class="item">
+              <div>
+                <img :src="item.icon">
+                <el-tooltip :content="item.itemName" placement="top-start" :open-delay="300">
+                  <span class="item-name">{{ item.itemName }}</span>
+                </el-tooltip>
+              </div>
+            </td>
           </tr>
           <tr class="foot">
             <td>总计</td>
@@ -542,6 +549,14 @@
           }
           img {
             margin-left: 10px;
+          }
+          .item-name {
+            display: inline-block;
+            vertical-align: middle;
+            max-width: calc(100% - 39px);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
           }
         }
 
