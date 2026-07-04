@@ -22,7 +22,7 @@ See [Configuration Reference](https://cli.vuejs.org/config/).
 
 ## 特殊说明
 `src/views/game/ItemView.vue` 对 `/game/item` 项目列表做了特殊拆分：
-- `足球` 拆为 `足球` + `八人足球`
-- `轮滑冰球(女子冰球)` 拆为 `轮滑冰球` + `女子冰球`
+- 项目 `id = 163`（足球）拆为 `足球` + `八人足球`
+- 项目 `id = 144`（轮滑冰球/女子冰球）拆为 `轮滑冰球` + `女子冰球`
 
 拆分后第二个项目的 `orderNum` 在原值基础上 +1，其余属性保持不变。

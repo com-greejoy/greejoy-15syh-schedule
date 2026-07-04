@@ -38,14 +38,16 @@
         }
         const result = [];
         list.forEach(item => {
-          if (item.name === '足球') {
+          // 足球项目（id=163）拆分为 足球 + 八人足球
+          if (item.id == 163) {
             result.push(item);
             result.push({
               ...item,
               name: '八人足球',
               orderNum: item.orderNum + 1
             });
-          } else if (item.name === '轮滑冰球(女子冰球)') {
+          // 轮滑冰球/女子冰球项目（id=144）拆分为 轮滑冰球 + 女子冰球
+          } else if (item.id == 144) {
             result.push({
               ...item,
               name: '轮滑冰球'
