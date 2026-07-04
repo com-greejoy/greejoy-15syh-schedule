@@ -44,7 +44,9 @@
             result.push({
               ...item,
               name: '八人足球',
-              orderNum: item.orderNum + 1
+              orderNum: item.orderNum + 1,
+              icon: '/15syh/profile/cms/material/upload/2026/07/04/84870b49-04a1-41cb-ade6-af10cf6a48e8.png',
+              icon2: '/15syh/profile/cms/material/upload/2026/07/04/6e56991c-0fdf-4e7a-ba93-827639a5e04d.png'
             });
           // 轮滑冰球/女子冰球项目（id=144）拆分为 轮滑冰球 + 女子冰球
           } else if (item.id == 144) {
@@ -55,7 +57,9 @@
             result.push({
               ...item,
               name: '女子冰球',
-              orderNum: item.orderNum + 1
+              orderNum: item.orderNum + 1,
+              icon: '/15syh/profile/cms/material/upload/2026/07/04/bae797de-48fa-4a38-ad84-b8809582c5bc.png',
+              icon2: '/15syh/profile/cms/material/upload/2026/07/04/2cd20907-8230-4e20-a200-d99802734205.png'
             });
           } else {
             result.push(item);
