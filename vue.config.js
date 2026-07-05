@@ -8,14 +8,11 @@ module.exports = {
     port: 8848,
     proxy: {
       [process.env.VUE_APP_BASE_API]: {
-        target: 'http://localhost:8081',
-        changeOrigin: true,
-        pathRewrite: {
-          ['^' + process.env.VUE_APP_BASE_API]: ''
-        }
+        target: 'https://www.sichuan15sports.cn',
+        changeOrigin: true
       },
       '/profile' : {
-        target: 'http://localhost:8081',
+        target: 'https://www.sichuan15sports.cn',
         secure: false
       }
     }
