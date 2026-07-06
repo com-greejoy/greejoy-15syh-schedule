@@ -1,10 +1,10 @@
 <template>
-  <div id="app">
-    <div id="header">
+  <div id="app" :class="{ 'snapshot-mode': snapshotMode }">
+    <div v-if="!snapshotMode" id="header">
       <img src="~assets/img/header.png" @click="toHome" />
       <game-info></game-info>
     </div>
-    <div id="nav">
+    <div v-if="!snapshotMode" id="nav">
       <div class="wrapper">
         <router-link class="link" to="/game/rule">总则</router-link>
         <router-link class="link" to="/game/item">项目</router-link>
@@ -53,7 +53,7 @@
         <router-view :key="key" />
       </div>
     </div>
-    <div id="beian">
+    <div v-if="!snapshotMode" id="beian">
       <img class="beian-icon" src="~assets/img/beian-icon.png" />
       <a style="margin-right: 20px" href=" " rel="noreferrer" target="_blank"
         >川公网安备51160202511962号</a
@@ -83,6 +83,9 @@ export default {
     categoryId() {
       return this.$store.getters.categoryId;
     },
+    snapshotMode() {
+      return this.$route.query.snapshot === "1";
+    },
   },
   watch: {
     categoryId(newVal, oldVal) {
@@ -108,6 +111,24 @@ export default {
 #app {
   text-align: center;
   color: #2c3e50;
+}
+
+/* 快照模式：供服务端截图使用，去掉宽度约束与装饰背景，让内容自然撑开 */
+#app.snapshot-mode {
+  text-align: left;
+
+  #main {
+    padding: 0;
+    min-height: 0;
+    background: #fff;
+
+    .main-container {
+      width: max-content;
+      margin: 0;
+      padding: 0;
+      border-radius: 0;
+    }
+  }
 }
 
 #header {

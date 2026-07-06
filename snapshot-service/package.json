@@ -1,0 +1,13 @@
+{
+  "name": "schedule-snapshot-service",
+  "private": true,
+  "version": "1.0.0",
+  "description": "总赛程全览图截图服务：打开前端快照页并截图，返回 PNG",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "playwright": "1.61.1"
+  }
+}

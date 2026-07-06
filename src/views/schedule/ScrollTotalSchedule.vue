@@ -1,5 +1,9 @@
 <template>
-  <div class="total-schedule-view">
+  <div class="total-schedule-view" :class="{ 'snapshot-mode': snapshotMode }">
+    <div v-if="snapshotMode" class="snapshot-title">
+      <span class="title">{{ $store.getters.game.name }} · {{ $store.getters.categoryName }} 总赛程</span>
+      <span class="time">生成时间：{{ snapshotTime }}</span>
+    </div>
     <div class="declare">
       <table>
         <tr>
@@ -13,7 +17,7 @@
         </tr>
       </table>
     </div>
-    <div class="fixed-btn">
+    <div v-if="!snapshotMode" class="fixed-btn">
       <div class="btn-div">
         <div @mouseenter="autoPre" @mouseleave="resetTimer" @click="pre" class="btn-left"></div>
         <div @mouseenter="autoNext" @mouseleave="resetTimer" @click="next" class="btn-right"></div>
@@ -175,10 +179,14 @@
         pageSize: 15,
         matchDateList: [],
         itemMatchDateList: [],
-        popList: []
+        popList: [],
+        snapshotTime: this.dayjs().format('YYYY-MM-DD HH:mm')
       }
     },
     computed: {
+      snapshotMode() {
+        return this.$route.query.snapshot === '1';
+      },
       totalEndCount() {
         return this.matchDateList.reduce((total, curVal, curIndex, arr) => {
           return total + curVal.endCount;
@@ -192,7 +200,13 @@
     },
     created() {
       this.getMatchDateList().then(() => {
-        this.getItemMatchDateList();
+        return this.getItemMatchDateList();
+      }).then(() => {
+        if (this.snapshotMode) {
+          this.$nextTick(() => {
+            window.__RENDER_DONE__ = true;
+          });
+        }
       });
     },
     methods: {
@@ -308,10 +322,12 @@
             this.handleTotalMatchDate(arr);
             //setValue
             this.matchDateList = arr;
-            this.$nextTick(() => {
-              //处理当前日期移动
-              this.toNowScrollLeft(arr);
-            })
+            if (!this.snapshotMode) {
+              this.$nextTick(() => {
+                //处理当前日期移动
+                this.toNowScrollLeft(arr);
+              })
+            }
             resolve();
           }).catch(err => {
             reject(err);
@@ -342,7 +358,7 @@
         }
       },
       getItemMatchDateList() {
-        listItemMatchDate({
+        return listItemMatchDate({
           gameId: this.$store.getters.game.id,
           categoryId: this.$store.getters.categoryId,
           orderByColumn: 'i.orderNum',
@@ -426,6 +442,36 @@
 </script>
 
 <style lang="less" scoped>
+
+  // 快照模式：供服务端截图使用，中间日期区完全展开、无滚动交互
+  .total-schedule-view.snapshot-mode {
+    width: max-content;
+
+    .snapshot-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding: 14px 16px;
+      background-color: #fff;
+
+      .title {
+        font-size: 24px;
+        font-weight: bold;
+        color: #223566;
+      }
+      .time {
+        font-size: 14px;
+        color: #888;
+      }
+    }
+
+    .schedule-wrapper.scroll {
+      .wrapper-center {
+        overflow-x: visible;
+        flex-grow: 0;
+      }
+    }
+  }
 
   .total-schedule-view {
 

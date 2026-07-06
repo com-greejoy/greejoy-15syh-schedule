@@ -6,6 +6,8 @@ module.exports = {
   publicPath: process.env.NODE_ENV === "production" ? "/schedule/" : "/",
   devServer: {
     port: 8848,
+    // 允许 Docker 容器内的截图服务通过 host.docker.internal 访问本 dev 服务
+    disableHostCheck: true,
     proxy: {
       [process.env.VUE_APP_BASE_API]: {
         target: 'https://www.sichuan15sports.cn',
