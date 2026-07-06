@@ -240,6 +240,7 @@
         </div>
       </div>
     </div>
+    <div class="schedule-tips">注：具体比赛时间以实际为准。</div>
   </div>
 </template>
 
@@ -825,6 +826,14 @@ export default {
         }
       }
     }
+  }
+
+  .schedule-tips {
+    margin-top: 20px;
+    padding: 10px;
+    font-size: 14px;
+    color: #666;
+    text-align: center;
   }
 }
 </style>
