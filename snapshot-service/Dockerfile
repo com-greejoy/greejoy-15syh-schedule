@@ -4,10 +4,14 @@ FROM node:20-slim
 
 WORKDIR /app
 COPY package.json ./
+# 设置容器时区为北京时间，保证截图中的"生成时间"与北京时间一致
+ENV TZ=Asia/Shanghai
 RUN npm install --omit=dev \
     && npx playwright install --only-shell --with-deps chromium \
-    # 中文字体（表格文字、项目名称渲染）
-    && apt-get update && apt-get install -y --no-install-recommends fonts-noto-cjk \
+    # 中文字体（表格文字、项目名称渲染）和时区数据
+    && apt-get update && apt-get install -y --no-install-recommends fonts-noto-cjk tzdata \
+    && ln -snf /usr/share/zoneinfo/$TZ /etc/localtime \
+    && echo $TZ > /etc/timezone \
     && rm -rf /var/lib/apt/lists/*
 
 COPY server.js ./
