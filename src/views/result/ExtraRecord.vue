@@ -53,10 +53,6 @@ export default {
     }
   },
   computed: {
-    // TEMP: 达级模式下隐藏的项目列表，后期去掉此数组即可恢复全部显示
-    hiddenLevelItems() {
-      return ['田径'];
-    },
     extraRecords() {
       let arr = this.extraList.filter(i => i.extraType);
       if (this.itemSelect) {
@@ -68,7 +64,7 @@ export default {
       return arr;
     },
     levelRecords() {
-      let arr = this.extraList.filter(i => i.level && !this.hiddenLevelItems.includes(i.itemStr));
+      let arr = this.extraList.filter(i => i.level);
       if (this.itemSelect) {
         arr = arr.filter(i => i.itemStr == this.itemSelect)
       }
@@ -78,10 +74,7 @@ export default {
       return arr;
     },
     itemOptions() {
-      const source = this.isExtra
-        ? this.extraList
-        : this.extraList.filter(i => !this.hiddenLevelItems.includes(i.itemStr));
-      const arr = source.map(i => i.itemStr).filter(i => i);
+      const arr = this.extraList.map(i => i.itemStr).filter(i => i);
       return Array.from(new Set(arr));
     },
     extraOptions() {
