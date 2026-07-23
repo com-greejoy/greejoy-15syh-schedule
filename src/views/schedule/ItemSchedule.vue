@@ -110,7 +110,11 @@
             width="100"
           >
             <template slot-scope="scope">
-              {{ scope.row.extra && scope.row.extra.extraMedal ? scope.row.extra.extraMedal : '' }}
+              {{
+                scope.row.extra && scope.row.extra.extraMedal
+                  ? scope.row.extra.extraMedal
+                  : ""
+              }}
             </template>
           </el-table-column>
           <el-table-column
@@ -135,7 +139,11 @@
             show-overflow-tooltip
           >
             <template slot-scope="scope">
-              {{ [scope.row.remark, scope.row.extra && scope.row.extra.name].filter(Boolean).join(' ') }}
+              {{
+                [scope.row.remark, scope.row.extra && scope.row.extra.remark]
+                  .filter(Boolean)
+                  .join(" ")
+              }}
             </template>
           </el-table-column>
           <el-table-column type="expand" align="center" width="60">
