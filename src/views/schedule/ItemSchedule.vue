@@ -107,9 +107,12 @@
             v-if="isYoung"
             label="超破计牌"
             align="center"
-            prop="extra.extraMedal"
             width="100"
-          />
+          >
+            <template slot-scope="scope">
+              {{ scope.row.extra && scope.row.extra.extraMedal ? scope.row.extra.extraMedal : '' }}
+            </template>
+          </el-table-column>
           <el-table-column
             v-if="isYoung"
             label="运动员"
@@ -128,10 +131,13 @@
           <el-table-column
             label="备注"
             align="center"
-            prop="remark"
             width="150"
             show-overflow-tooltip
-          />
+          >
+            <template slot-scope="scope">
+              {{ [scope.row.remark, scope.row.extra && scope.row.extra.name].filter(Boolean).join(' ') }}
+            </template>
+          </el-table-column>
           <el-table-column type="expand" align="center" width="60">
             <template slot="header" slot-scope="scope">
               <div

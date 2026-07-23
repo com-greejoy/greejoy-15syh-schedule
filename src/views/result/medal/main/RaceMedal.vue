@@ -47,11 +47,14 @@
         <el-table-column
           label="超破计牌"
           align="center"
-          prop="extra.extraMedal"
           sortable
           width="100"
           fixed="right"
-        />
+        >
+          <template scope="scope">
+            {{ scope.row.extra && scope.row.extra.extraMedal ? scope.row.extra.extraMedal : '' }}
+          </template>
+        </el-table-column>
       </el-table>
     </div>
   </div>
