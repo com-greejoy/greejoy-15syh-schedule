@@ -16,3 +16,11 @@ export function getJoinSporter(categoryId, sporterId) {
     method: 'get'
   })
 }
+
+// 查询参赛运动员（按自然人ID，合并所有参赛身份的赛程和成绩）
+export function getJoinSporterByAthlete(categoryId, athleteId) {
+  return request({
+    url: `/api/game/sporter/join-by-athlete/${categoryId}/${athleteId}`,
+    method: 'get'
+  })
+}

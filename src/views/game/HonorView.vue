@@ -37,10 +37,10 @@
       <div v-if="!honorList.length && !loading" class="empty-tip">
         暂无荣誉运动员数据
       </div>
-      <div v-for="(athlete, idx) in honorList" :key="athlete.gameAthleteId">
+      <div v-for="(athlete, idx) in honorList" :key="athlete.athleteId">
         <el-collapse class="athlete-collapse">
           <el-collapse-item
-            :name="athlete.gameAthleteId"
+            :name="athlete.athleteId"
             @click.native="handleAthleteClick(athlete, idx)"
           >
             <template slot="title">
@@ -49,7 +49,7 @@
                 <span class="col name">{{ athlete.athleteName }}</span>
                 <span class="col gender">{{ sexFormat(athlete.gender) }}</span>
                 <span class="col delegation">{{ athlete.delegationName }}</span>
-                <span class="col sport">{{ athlete.gameSportName }}</span>
+                <span class="col sport">{{ athlete.gameSportNames }}</span>
                 <span class="col medal-group">
                   <span class="medal"
                     ><img src="~assets/img/game/1st.png" />{{
@@ -124,7 +124,7 @@ import MedalImg from "views/components/MedalImg";
 import { listHonor } from "network/game/honor";
 import { listUnitType } from "network/game/unitType";
 import { listItem } from "network/game/item";
-import { getJoinSporter } from "network/game/sporter";
+import { getJoinSporterByAthlete } from "network/game/sporter";
 
 export default {
   name: "HonorView",
@@ -201,7 +201,7 @@ export default {
       const item = this.honorList[idx];
       this.$set(item, "_loading", true);
       const categoryId = this.$store.getters.categoryId;
-      getJoinSporter(categoryId, athlete.gameAthleteId).then((res) => {
+      getJoinSporterByAthlete(categoryId, athlete.athleteId).then((res) => {
         const allResults = res.data.resultList || [];
         const medalResults = allResults.filter((r) => r.medal && r.medal > 0);
         this.$set(item, "_resultList", medalResults);

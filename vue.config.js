@@ -10,11 +10,12 @@ module.exports = {
     disableHostCheck: true,
     proxy: {
       [process.env.VUE_APP_BASE_API]: {
-        target: 'https://www.sichuan15sports.cn',
-        changeOrigin: true
+        target: 'http://localhost:8081',
+        changeOrigin: true,
+        pathRewrite: { ['^' + process.env.VUE_APP_BASE_API]: '' }
       },
       '/profile' : {
-        target: 'https://www.sichuan15sports.cn',
+        target: 'http://localhost:8081',
         secure: false
       }
     }
