@@ -201,7 +201,6 @@ export default {
     this.categoryId = this.$route.params.categoryId || null;
     this.sporterId = this.$route.params.sporterId || null;
     this.getJoinSporter();
-    this.loadHonor();
   },
   methods: {
     sexFormat(sex) {
@@ -217,12 +216,14 @@ export default {
         this.$store.dispatch("setCategoryId", this.categoryId);
         this.loading = false;
         this.sporter = res.data;
+        this.loadHonor();
       });
     },
     loadHonor() {
-      if (!this.sporterId) return;
+      const athleteId = this.sporter && this.sporter.athleteId;
+      if (!athleteId) return;
       listHonor({
-        gameAthleteId: this.sporterId,
+        athleteId: athleteId,
         pageNum: 1,
         pageSize: 1,
       })
